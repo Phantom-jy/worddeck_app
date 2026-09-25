@@ -1,0 +1,13 @@
+{
+  "name": "WordDeck 每日词卡",
+  "short_name": "WordDeck",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#2f6f62",
+  "description": "本地优先的英语单词与短语学习、轮次复习和间隔复习工具",
+  "icons": [
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}

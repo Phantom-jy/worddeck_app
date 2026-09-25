@@ -1,0 +1,5956 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2f6f62" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>WordDeck · 每日词卡</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root{
+      --bg:#f4f7f6;--panel:#ffffff;--panel2:#eef5f2;--text:#17211e;--muted:#6a7772;
+      --brand:#2f6f62;--brand2:#3f8d7b;--line:#dce6e2;--ok:#147a52;--bad:#b4483d;
+      --warn:#9a6b1f;--shadow:0 12px 30px rgba(25,61,51,.08);--radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh;display:grid;grid-template-columns:230px minmax(0,1fr)}
+    .sidebar{position:sticky;top:0;height:100vh;padding:22px 16px;border-right:1px solid var(--line);background:rgba(255,255,255,.88);backdrop-filter:blur(14px);z-index:20}
+    .brand{display:flex;gap:12px;align-items:center;padding:8px 8px 20px}
+    .brand-mark{width:40px;height:40px;border-radius:13px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;box-shadow:var(--shadow)}
+    .brand b{font-size:18px}.brand small{display:block;color:var(--muted);margin-top:2px}
+    .nav{display:grid;gap:7px}.nav button{border:0;background:transparent;text-align:left;padding:12px 14px;border-radius:12px;color:var(--muted);font-weight:700}
+    .nav button:hover,.nav button.active{background:var(--panel2);color:var(--brand)}
+    .sidebar-foot{position:absolute;left:16px;right:16px;bottom:18px;color:var(--muted);font-size:12px;line-height:1.55}
+    main{width:min(1180px,100%);margin:0 auto;padding:28px 28px 80px}
+    .topbar{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:20px}
+    .topbar h1{font-size:26px;margin:0 0 6px}.topbar p{margin:0;color:var(--muted)}
+    .pill{padding:8px 12px;border-radius:999px;background:var(--panel2);color:var(--brand);font-weight:800;font-size:13px;white-space:nowrap}
+    .grid{display:grid;gap:16px}.stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .stat{padding:18px}.stat .num{font-size:29px;font-weight:900;letter-spacing:-.02em}.stat .label{color:var(--muted);font-size:13px;margin-top:4px}
+    .hero{padding:24px;display:grid;grid-template-columns:1.35fr .85fr;gap:22px;align-items:center}
+    .hero h2{margin:0 0 8px;font-size:23px}.hero p{color:var(--muted);line-height:1.7;margin:0 0 18px}
+    .progress{height:11px;background:#e5eeeb;border-radius:99px;overflow:hidden}.progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--brand),#65a996);border-radius:99px}
+    .progress-row{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin:8px 0 18px}
+    .btnrow{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:800;background:var(--brand);color:white;box-shadow:0 7px 16px rgba(47,111,98,.17)}
+    .btn:hover{filter:brightness(.97)}.btn.secondary{background:var(--panel2);color:var(--brand);box-shadow:none}.btn.ghost{background:transparent;color:var(--muted);box-shadow:none;border:1px solid var(--line)}.btn.danger{background:#fff0ee;color:var(--bad);box-shadow:none}.btn.small{padding:7px 10px;border-radius:9px;font-size:13px}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .plan{padding:19px}.plan h3,.section-title{margin:0 0 14px;font-size:18px}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.field label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin:0 0 6px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#7eb6a8;box-shadow:0 0 0 3px rgba(63,141,123,.1)}
+    .section{display:none}.section.active{display:block}.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}.box{padding:18px}.box p{color:var(--muted);line-height:1.65}.mini-list{display:grid;gap:10px}.mini-item{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:11px;background:var(--panel2)}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.toolbar input,.toolbar select{border:1px solid var(--line);border-radius:11px;background:#fff;padding:10px 12px}.toolbar input{min-width:240px;flex:1}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:15px;background:#fff}.word-table{width:100%;border-collapse:collapse;min-width:760px}.word-table th,.word-table td{padding:12px 13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.word-table th{font-size:12px;color:var(--muted);position:sticky;top:0;background:#fbfdfc;z-index:2}.word-table tr:last-child td{border-bottom:0}.eng{font-weight:850}.sub{font-size:12px;color:var(--muted);margin-top:3px}.tag{display:inline-flex;padding:3px 7px;border-radius:999px;background:var(--panel2);font-size:11px;color:var(--brand);margin:2px 3px 2px 0}
+    .empty{padding:50px 20px;text-align:center;color:var(--muted)}
+    .quiz-shell{position:fixed;inset:0;background:linear-gradient(180deg,#eef5f2 0%,#f6f8f7 50%,#fff 100%);z-index:100;display:none;overflow:auto}.quiz-shell.open{display:block}
+    .quiz-top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(247,250,249,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .quiz-top .qprog{flex:1}.quiz-top .qmeta{font-size:12px;color:var(--muted);min-width:90px;text-align:right}
+    .quiz{width:min(760px,100%);margin:0 auto;padding:36px 22px 90px}.quiz-card{background:#fff;border:1px solid var(--line);border-radius:26px;padding:28px;box-shadow:var(--shadow)}
+    .quiz-source{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}.quiz-word{font-size:clamp(34px,7vw,56px);font-weight:900;line-height:1.15;letter-spacing:-.025em;margin:24px 0 6px;word-break:break-word}.quiz-kind{color:var(--muted);font-size:13px;margin-bottom:22px}
+    .speak{border:0;background:var(--panel2);color:var(--brand);border-radius:999px;padding:7px 11px;font-weight:800}
+    .options{display:grid;gap:11px}.option{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:#fff;border-radius:15px;padding:14px 15px;color:var(--text);transition:.14s}.option:hover{border-color:#9fc8bd;transform:translateY(-1px)}.option .key{width:26px;height:26px;border-radius:8px;background:var(--panel2);display:grid;place-items:center;color:var(--brand);font-weight:900;flex:0 0 auto}.option.correct{border-color:#74b798;background:#f0faf5;color:#0d6b45}.option.wrong{border-color:#dc968e;background:#fff3f1;color:#9f352d}.option.dim{opacity:.52}
+    .feedback{margin-top:18px;border-radius:15px;padding:15px 16px;background:var(--panel2);display:none}.feedback.show{display:block}.feedback.good{background:#edf8f2}.feedback.bad{background:#fff2f0}.feedback strong{display:block;margin-bottom:6px}.detail{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.65}.detail b{color:var(--text)}
+    .quiz-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px}.quiz-actions .right{display:flex;gap:9px}.star.on{background:#fff8df;color:#a16b00;border-color:#ecd684}
+    .settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.setting-card{padding:18px}.setting-row{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.setting-row:last-child{border-bottom:0}.setting-row .desc{color:var(--muted);font-size:12px;margin-top:3px}.toggle{width:46px;height:26px;border-radius:99px;background:#cbd8d4;padding:3px;border:0}.toggle span{display:block;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.toggle.on{background:var(--brand)}.toggle.on span{transform:translateX(20px)}
+    .modal-back{position:fixed;inset:0;background:rgba(16,31,26,.35);z-index:150;display:none;padding:20px;place-items:center}.modal-back.open{display:grid}.modal{width:min(720px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:22px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(8,34,27,.2);padding:22px}.modal h3{margin:0 0 6px}.modal p{color:var(--muted)}.modal textarea{min-height:180px;resize:vertical}.modal-head{display:flex;justify-content:space-between;align-items:center}.xbtn{border:0;background:var(--panel2);border-radius:10px;width:36px;height:36px;font-weight:900;color:var(--muted)}
+    .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#173d34;color:#fff;padding:11px 16px;border-radius:999px;z-index:300;opacity:0;pointer-events:none;transition:.2s;box-shadow:var(--shadow);font-size:14px}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .mobile-nav{display:none}.danger-zone{border:1px solid #f0cdc8;background:#fff8f7}
+    .kbd{font-size:11px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:1px 5px;color:var(--muted)}
+    @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}main{padding:20px 16px 90px}.stats-grid{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.split,.settings-grid{grid-template-columns:1fr}.mobile-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.93);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:50;padding:6px max(6px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}.mobile-nav button{border:0;background:transparent;color:var(--muted);padding:8px 2px;font-size:12px;font-weight:700}.mobile-nav button.active{color:var(--brand)}.quiz{padding:24px 14px 90px}.quiz-card{padding:20px;border-radius:20px}.quiz-word{margin-top:18px}.option{padding:13px}.topbar{align-items:flex-start}.pill{font-size:11px}}
+    @media(max-width:520px){.form-grid{grid-template-columns:1fr}.stats-grid{gap:10px}.stat{padding:14px}.stat .num{font-size:24px}.topbar h1{font-size:23px}.hero{padding:18px}.plan{padding:16px}.quiz-actions{flex-direction:column}.quiz-actions .right{width:100%}.quiz-actions .right .btn{flex:1}.modal{padding:17px}.toolbar input{min-width:100%}}
+    @media(prefers-color-scheme:dark){body.auto-dark{--bg:#0f1513;--panel:#17201d;--panel2:#202c28;--text:#edf4f1;--muted:#99aaa4;--line:#2b3a35;--shadow:0 12px 30px rgba(0,0,0,.2)}body.auto-dark .sidebar,body.auto-dark .mobile-nav,body.auto-dark .quiz-top{background:rgba(23,32,29,.92)}body.auto-dark .field input,body.auto-dark .field select,body.auto-dark .field textarea,body.auto-dark .toolbar input,body.auto-dark .toolbar select,body.auto-dark .table-wrap,body.auto-dark .word-table th,body.auto-dark .option,body.auto-dark .modal{background:#17201d;color:var(--text)}body.auto-dark .quiz-shell{background:#0f1513}body.auto-dark .quiz-card{background:#17201d}}
+  </style>
+</head>
+<body class="auto-dark">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">W</div><div><b>WordDeck</b><small>每日词卡 · 本地版</small></div></div>
+    <nav class="nav">
+      <button class="active" data-tab="today">◉ 今日任务</button>
+      <button data-tab="bank">▦ 词库</button>
+      <button data-tab="mistakes">✦ 错题本</button>
+      <button data-tab="stats">▥ 统计</button>
+      <button data-tab="settings">⚙ 设置</button>
+    </nav>
+    <div class="sidebar-foot">数据只保存在当前浏览器。电脑与手机之间可通过“导出备份 / 导入备份”同步。</div>
+  </aside>
+  <main>
+    <section id="today" class="section active">
+      <div class="topbar"><div><h1>今天学什么？</h1><p id="todaySubtitle">复习到期词，再随机抽取本轮新词。</p></div><div class="pill" id="roundPill">第 1 轮</div></div>
+      <div class="grid stats-grid">
+        <div class="card stat"><div class="num" id="statTotal">0</div><div class="label">词库总量</div></div>
+        <div class="card stat"><div class="num" id="statDue">0</div><div class="label">今日到期复习</div></div>
+        <div class="card stat"><div class="num" id="statRound">0%</div><div class="label">本轮完成度</div></div>
+        <div class="card stat"><div class="num" id="statAccuracy">—</div><div class="label">今日正确率</div></div>
+      </div>
+      <div class="card hero">
+        <div>
+          <h2 id="heroTitle">第 1 轮学习</h2>
+          <p>优先复习到期词，再从尚未完成本轮的词里随机抽取。答错会进入错题本，并在本次练习中稍后再次出现。</p>
+          <div class="progress"><span id="roundBar" style="width:0%"></span></div>
+          <div class="progress-row"><span id="roundText">0 / 0</span><span id="roundEta">尚未开始</span></div>
+          <div class="btnrow">
+            <button class="btn" id="startMixed">开始今日任务</button>
+            <button class="btn secondary" id="startReview">只复习到期</button>
+            <button class="btn secondary" id="startNew">只学本轮新词</button>
+          </div>
+        </div>
+        <div class="card plan" style="box-shadow:none">
+          <h3>今日计划</h3>
+          <div class="form-grid">
+            <div class="field"><label>本轮新词上限</label><select id="dailyNewQuick"><option>50</option><option>100</option><option selected>200</option><option>300</option><option>500</option></select></div>
+            <div class="field"><label>到期复习上限</label><select id="dailyReviewQuick"><option>100</option><option selected>300</option><option>500</option><option>1000</option></select></div>
+            <div class="field"><label>练习顺序</label><select id="orderQuick"><option value="mix">新词/复习混排</option><option value="reviewFirst">先复习后新词</option></select></div>
+          </div>
+          <div class="mini-list" style="margin-top:14px">
+            <div class="mini-item"><span>预计今日任务</span><b id="todayPlanCount">0 词</b></div>
+            <div class="mini-item"><span>错题待清</span><b id="todayMistakeCount">0</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="bank" class="section">
+      <div class="topbar"><div><h1>词库</h1><p>内置你上传的英语复盘词库，也可继续导入自己的单词。</p></div><div class="btnrow"><button class="btn secondary" id="openAddWord">+ 单个添加</button><button class="btn" id="openImport">导入词库</button></div></div>
+      <div class="toolbar"><input id="bankSearch" placeholder="搜索英文、中文、例句……"/><select id="bankSource"><option value="all">全部来源</option></select><select id="bankStatus"><option value="all">全部状态</option><option value="unseen">本轮未完成</option><option value="learned">已学</option><option value="starred">收藏</option><option value="suspended">暂停</option></select></div>
+      <div class="table-wrap"><table class="word-table"><thead><tr><th>英文</th><th>中文</th><th>来源 / 状态</th><th>操作</th></tr></thead><tbody id="bankBody"></tbody></table></div>
+      <div class="btnrow" style="margin-top:14px"><button class="btn ghost" id="loadMoreBank">显示更多</button><span class="sub" id="bankCount"></span></div>
+    </section>
+
+    <section id="mistakes" class="section">
+      <div class="topbar"><div><h1>错题本</h1><p>答错的词会自动进入；连续答对后可手动移除。</p></div><button class="btn" id="startMistakes">专项重练</button></div>
+      <div id="mistakeList" class="grid"></div>
+    </section>
+
+    <section id="stats" class="section">
+      <div class="topbar"><div><h1>学习统计</h1><p>看轮次推进、复习负担和近期正确率。</p></div></div>
+      <div class="grid stats-grid">
+        <div class="card stat"><div class="num" id="sLearned">0</div><div class="label">至少答对过</div></div>
+        <div class="card stat"><div class="num" id="sMastered">0</div><div class="label">熟练（SRS ≥ 4）</div></div>
+        <div class="card stat"><div class="num" id="sMistakes">0</div><div class="label">错题本</div></div>
+        <div class="card stat"><div class="num" id="sStreak">0</div><div class="label">连续学习天数</div></div>
+      </div>
+      <div class="split">
+        <div class="card box"><h3 class="section-title">最近 7 天</h3><div id="history7" class="mini-list"></div></div>
+        <div class="card box"><h3 class="section-title">记忆阶段</h3><div id="stageStats" class="mini-list"></div></div>
+      </div>
+    </section>
+
+    <section id="settings" class="section">
+      <div class="topbar"><div><h1>设置与数据</h1><p>所有设置与进度均保存在浏览器本地。</p></div></div>
+      <div class="settings-grid">
+        <div class="card setting-card"><h3 class="section-title">学习设置</h3>
+          <div class="setting-row"><div><b>自动朗读</b><div class="desc">每张卡片出现时朗读英文。</div></div><button class="toggle" data-setting="autoSpeak"><span></span></button></div>
+          <div class="setting-row"><div><b>答错后本轮重现</b><div class="desc">错词隔几张再次出现，直到答对。</div></div><button class="toggle on" data-setting="repeatWrong"><span></span></button></div>
+          <div class="setting-row"><div><b>完成后自动下一轮</b><div class="desc">全词库完成当前轮后自动进入下一轮。</div></div><button class="toggle on" data-setting="autoNextRound"><span></span></button></div>
+          <div class="field" style="margin-top:14px"><label>SRS 间隔（天，用逗号分隔）</label><input id="intervalsInput" value="1,2,4,7,14,30"/></div>
+        </div>
+        <div class="card setting-card"><h3 class="section-title">轮次控制</h3>
+          <p class="sub">当前：<b id="currentRoundSetting">第 1 轮</b>。SRS 复习与轮次学习相互独立：进入下一轮不会清空记忆阶段。</p>
+          <div class="btnrow"><button class="btn secondary" id="nextRoundBtn">立即开始下一轮</button><button class="btn ghost" id="restartRoundBtn">重新开始本轮</button></div>
+        </div>
+        <div class="card setting-card"><h3 class="section-title">备份与导入</h3>
+          <div class="btnrow"><button class="btn secondary" id="exportBackup">导出完整备份</button><button class="btn secondary" id="importBackupBtn">导入完整备份</button><button class="btn ghost" id="exportCsv">导出词库 CSV</button></div>
+          <input id="backupInput" type="file" accept="application/json,.json" hidden/>
+          <p class="sub">电脑与手机不同步时，用完整备份迁移进度。词库 CSV 只导出词条，不含学习进度。</p>
+        </div>
+        <div class="card setting-card danger-zone"><h3 class="section-title">重置</h3><p class="sub">不会删除应用文件，只清空当前浏览器中的学习记录和自定义词库。</p><button class="btn danger" id="resetAll">清空全部本地数据</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+<nav class="mobile-nav"><button class="active" data-tab="today">今日</button><button data-tab="bank">词库</button><button data-tab="mistakes">错题</button><button data-tab="stats">统计</button><button data-tab="settings">设置</button></nav>
+
+<div class="quiz-shell" id="quizShell">
+  <div class="quiz-top"><button class="btn ghost small" id="quitQuiz">退出</button><div class="qprog progress"><span id="quizBar" style="width:0%"></span></div><div class="qmeta" id="quizMeta">0 / 0</div></div>
+  <div class="quiz"><div class="quiz-card">
+    <div class="quiz-source"><span id="quizSource"></span><span><button class="speak" id="speakBtn">🔊 发音</button></span></div>
+    <div class="quiz-word" id="quizWord">word</div><div class="quiz-kind" id="quizKind"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="quiz-actions"><button class="btn ghost star" id="starBtn">☆ 收藏</button><div class="right"><button class="btn ghost" id="dontKnowBtn">不会 / 看答案</button><button class="btn" id="nextBtn" disabled>下一个 <span class="kbd">Enter</span></button></div></div>
+  </div></div>
+</div>
+
+<div class="modal-back" id="importModal"><div class="modal"><div class="modal-head"><div><h3>导入词库</h3><p>支持 CSV / TSV / TXT / JSON，也可直接粘贴。</p></div><button class="xbtn" data-close="importModal">×</button></div>
+  <div class="field"><label>文件</label><input type="file" id="wordFile" accept=".csv,.tsv,.txt,.json,text/plain,application/json"/></div>
+  <div class="field" style="margin-top:12px"><label>或粘贴文本</label><textarea id="importText" placeholder="推荐格式：\nenglish | 中文 | example | note | tags\n\nabate | 减弱；缓和 | The storm began to abate. | 常用于强度下降 | 考研"></textarea></div>
+  <p class="sub">有表头时可用：english, chinese, example, note, tags。无表头时默认前两列为英文和中文。重复英文会跳过。</p>
+  <div class="btnrow"><button class="btn" id="doImport">导入</button><button class="btn ghost" data-close="importModal">取消</button></div>
+</div></div>
+
+<div class="modal-back" id="addModal"><div class="modal"><div class="modal-head"><div><h3>添加单词 / 短语</h3><p>添加后会加入当前轮次。</p></div><button class="xbtn" data-close="addModal">×</button></div>
+  <div class="form-grid"><div class="field"><label>英文 *</label><input id="addEnglish"/></div><div class="field"><label>中文 *</label><input id="addChinese"/></div><div class="field"><label>标签</label><input id="addTags" placeholder="例如：写作,金融"/></div></div>
+  <div class="field" style="margin-top:12px"><label>例句 / 搭配</label><textarea id="addExample" style="min-height:90px"></textarea></div>
+  <div class="field" style="margin-top:12px"><label>备注</label><textarea id="addNote" style="min-height:80px"></textarea></div>
+  <div class="btnrow"><button class="btn" id="doAddWord">保存</button><button class="btn ghost" data-close="addModal">取消</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const INITIAL_WORDS = [
+  {
+    "english": "a bit of everything",
+    "chinese": "各种情况都有一点",
+    "example": "说明问题存在，但并非整体崩坏",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0001",
+    "kind": "短语"
+  },
+  {
+    "english": "a deep love for",
+    "chinese": "对……的深厚热爱",
+    "example": "have a deep love for their own language",
+    "note": "固定搭配",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0002",
+    "kind": "短语"
+  },
+  {
+    "english": "a package deal",
+    "chinese": "一揽子方案",
+    "example": "强调综合解决，而非单一措施",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0003",
+    "kind": "短语"
+  },
+  {
+    "english": "a pocket of",
+    "chinese": "一小片/局部的",
+    "example": "pockets of seething anger",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0004",
+    "kind": "短语"
+  },
+  {
+    "english": "a shelter",
+    "chinese": "收容所、避难所",
+    "example": "无家可归语境优先选 shelter",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0005",
+    "kind": "短语"
+  },
+  {
+    "english": "a vast array of",
+    "chinese": "大量的、各式各样的",
+    "example": "a vast array of goods",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0006",
+    "kind": "短语"
+  },
+  {
+    "english": "abandon",
+    "chinese": "抛弃；放弃",
+    "example": "clients are going to abandon me",
+    "note": "abandon sb/sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0007",
+    "kind": "单词"
+  },
+  {
+    "english": "absorption into",
+    "chinese": "吸收/融入……",
+    "example": "",
+    "note": "absorption of immigrants into society",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0008",
+    "kind": "短语"
+  },
+  {
+    "english": "acknowledge",
+    "chinese": "承认",
+    "example": "McWhorter acknowledges...",
+    "note": "acknowledge that",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0009",
+    "kind": "单词"
+  },
+  {
+    "english": "acquire",
+    "chinese": "获得；习得",
+    "example": "acquire abilities/knowledge",
+    "note": "≈ gain/obtain",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0010",
+    "kind": "单词"
+  },
+  {
+    "english": "acquisition",
+    "chinese": "收购；取得",
+    "example": "continuing acquisition",
+    "note": "acquire v.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0011",
+    "kind": "单词"
+  },
+  {
+    "english": "address the needs/problems",
+    "chinese": "处理、解决需求/问题",
+    "example": "address 在此不是“地址”，而是“应对”",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0012",
+    "kind": "短语"
+  },
+  {
+    "english": "admiration",
+    "chinese": "钦佩",
+    "example": "admiration for their memory",
+    "note": "admire v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0013",
+    "kind": "单词"
+  },
+  {
+    "english": "admission",
+    "chinese": "准许进入；入场；承认",
+    "example": "gain admission to; admission to a university",
+    "note": "与 consent 区分：admission 可指“准入/录取”；consent 是“同意”。；此处=承认",
+    "source": "Day4 情报/动物实验；09-20 反智/经济放缓",
+    "id": "v0014",
+    "kind": "单词"
+  },
+  {
+    "english": "advisory",
+    "chinese": "咨询的；顾问的",
+    "example": "advisory service",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0015",
+    "kind": "单词"
+  },
+  {
+    "english": "advocate of",
+    "chinese": "……的倡导者",
+    "example": "an advocate of regular schooling",
+    "note": "advocate v./n.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0016",
+    "kind": "短语"
+  },
+  {
+    "english": "aggravate",
+    "chinese": "加剧；恶化",
+    "example": "aggravates the former",
+    "note": "≈ worsen",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0017",
+    "kind": "单词"
+  },
+  {
+    "english": "aggravation",
+    "chinese": "加重；恶化",
+    "example": "",
+    "note": "aggravation in the unconscious mind",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0018",
+    "kind": "单词"
+  },
+  {
+    "english": "aggressive treatment",
+    "chinese": "积极/强力治疗",
+    "example": "too aggressive treatment",
+    "note": "医疗语境并非“攻击性”",
+    "source": "Day5 铁路/医疗",
+    "id": "v0019",
+    "kind": "短语"
+  },
+  {
+    "english": "all those years when...",
+    "chinese": "那些年……的时候",
+    "example": "all those years when scientists argued...",
+    "note": "用于回顾长期争议",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0020",
+    "kind": "短语"
+  },
+  {
+    "english": "all too human",
+    "chinese": "太有人性了；非常典型的人类表现",
+    "example": "regarded as all too human",
+    "note": "all too = 太过于、非常",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0021",
+    "kind": "短语"
+  },
+  {
+    "english": "allow for",
+    "chinese": "考虑到；允许；为……留余地",
+    "example": "allow for reductions",
+    "note": "≈ take into account",
+    "source": "Day5 铁路/医疗",
+    "id": "v0022",
+    "kind": "短语"
+  },
+  {
+    "english": "along with",
+    "chinese": "连同；和……一起",
+    "example": "A along with B",
+    "note": "谓语常随 A",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0023",
+    "kind": "短语"
+  },
+  {
+    "english": "alphabetism",
+    "chinese": "按字母顺序造成的偏见/歧视",
+    "example": "alphabetical bias",
+    "note": "文章自造/主题词",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0024",
+    "kind": "单词"
+  },
+  {
+    "english": "Although / Now that / Provided / Except that",
+    "chinese": "Although=尽管；Now that=既然；Provided=只要；Except that=只是/除了这一点。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0025",
+    "kind": "短语"
+  },
+  {
+    "english": "an array of",
+    "chinese": "一系列；大量",
+    "example": "an entertaining array of examples",
+    "note": "array of + 复数名词",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0026",
+    "kind": "短语"
+  },
+  {
+    "english": "another",
+    "chinese": "另一个",
+    "example": "one type ... but not another",
+    "note": "与 other/the other 区分",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0027",
+    "kind": "单词"
+  },
+  {
+    "english": "anti-smoking lobby",
+    "chinese": "反吸烟游说团体",
+    "example": "the antismoking lobby",
+    "note": "lobby 可指游说集团",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0028",
+    "kind": "短语"
+  },
+  {
+    "english": "anxiety (about)",
+    "chinese": "焦虑；担忧",
+    "example": "anxiety about animal rights",
+    "note": "anxious(adj.) → anxiety(n.)。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0029",
+    "kind": "短语"
+  },
+  {
+    "english": "anything but",
+    "chinese": "绝非；根本不是",
+    "example": "they are anything but a counterbalance",
+    "note": "不是“除了任何东西”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0030",
+    "kind": "短语"
+  },
+  {
+    "english": "applicable to",
+    "chinese": "适用于",
+    "example": "be applicable to the former",
+    "note": "apply v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0031",
+    "kind": "短语"
+  },
+  {
+    "english": "appreciation",
+    "chinese": "欣赏；认可",
+    "example": "appreciation of their efforts",
+    "note": "appreciate v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0032",
+    "kind": "单词"
+  },
+  {
+    "english": "apprehensive",
+    "chinese": "忧虑的；担心的",
+    "example": "shippers are apprehensive",
+    "note": "≈ worried / anxious；be apprehensive about",
+    "source": "Day5 铁路/医疗",
+    "id": "v0033",
+    "kind": "单词"
+  },
+  {
+    "english": "approval / disapproval",
+    "chinese": "赞同 / 不赞同",
+    "example": "",
+    "note": "strong disapproval",
+    "source": "Day5 铁路/医疗",
+    "id": "v0034",
+    "kind": "短语"
+  },
+  {
+    "english": "arbitrator / arbiter",
+    "chinese": "仲裁者；裁决者",
+    "example": "act as arbiters",
+    "note": "题目里常指“裁判/裁决者”",
+    "source": "Day5 铁路/医疗",
+    "id": "v0035",
+    "kind": "短语"
+  },
+  {
+    "english": "argue that",
+    "chinese": "主张；论证说",
+    "example": "scientists argued that smoking would kill us",
+    "note": "argue 不一定是“争吵”",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0036",
+    "kind": "短语"
+  },
+  {
+    "english": "around / over / on / up",
+    "chinese": "turn one’s life around=扭转生活；turn over=翻转/营业额；turn on=打开；turn up=出现/调大。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0037",
+    "kind": "短语"
+  },
+  {
+    "english": "as if",
+    "chinese": "仿佛；好像",
+    "example": "as if + 从句",
+    "note": "方式/假设",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0038",
+    "kind": "短语"
+  },
+  {
+    "english": "as sb puts it",
+    "chinese": "正如某人所说",
+    "example": "put = 表述、说",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0039",
+    "kind": "短语"
+  },
+  {
+    "english": "as sb. puts it",
+    "chinese": "正如某人所说",
+    "example": "puts = 表述",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0040",
+    "kind": "短语"
+  },
+  {
+    "english": "aside from",
+    "chinese": "除……之外",
+    "example": "aside from = apart from",
+    "note": "排除/补充",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0041",
+    "kind": "短语"
+  },
+  {
+    "english": "aspire to",
+    "chinese": "渴望；追求",
+    "example": "aspire to such command",
+    "note": "aspire to do / aspire to sth",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0042",
+    "kind": "短语"
+  },
+  {
+    "english": "assimilating",
+    "chinese": "同化、吸收",
+    "example": "",
+    "note": "本篇 homogenizing 的近义项",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0043",
+    "kind": "单词"
+  },
+  {
+    "english": "assimilation",
+    "chinese": "同化；融入",
+    "example": "indices of assimilation：同化指标",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0044",
+    "kind": "单词"
+  },
+  {
+    "english": "assist",
+    "chinese": "帮助、援助",
+    "example": "finding ways to assist this population",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0045",
+    "kind": "单词"
+  },
+  {
+    "english": "assist / track / sustain / dismiss",
+    "chinese": "assist=帮助；track=追踪；sustain=维持；dismiss=不予考虑/解雇",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0046",
+    "kind": "短语"
+  },
+  {
+    "english": "associating",
+    "chinese": "联系、使有关联",
+    "example": "",
+    "note": "associate A with B",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0047",
+    "kind": "单词"
+  },
+  {
+    "english": "assumption",
+    "chinese": "假设；假定",
+    "example": "justify an assumption",
+    "note": "assume v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0048",
+    "kind": "单词"
+  },
+  {
+    "english": "at all",
+    "chinese": "根本；完全",
+    "example": "not ... at all",
+    "note": "程度强调",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0049",
+    "kind": "短语"
+  },
+  {
+    "english": "at best",
+    "chinese": "充其量；最好也不过",
+    "example": "seem wasteful at best",
+    "note": "与 at worst 成对记。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0050",
+    "kind": "短语"
+  },
+  {
+    "english": "at first",
+    "chinese": "起初",
+    "example": "at first, ...",
+    "note": "时间",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0051",
+    "kind": "短语"
+  },
+  {
+    "english": "at large",
+    "chinese": "总体上；在逃",
+    "example": "public at large",
+    "note": "固定搭配",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0052",
+    "kind": "短语"
+  },
+  {
+    "english": "at least",
+    "chinese": "至少",
+    "example": "seem to be at least within our control",
+    "note": "at least + 数量/程度",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0053",
+    "kind": "短语"
+  },
+  {
+    "english": "at times",
+    "chinese": "有时",
+    "example": "at times = sometimes",
+    "note": "频率",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0054",
+    "kind": "短语"
+  },
+  {
+    "english": "at unprecedented levels",
+    "chinese": "达到前所未有的水平",
+    "example": "immigration is neither at unprecedented levels…",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0055",
+    "kind": "短语"
+  },
+  {
+    "english": "at worst",
+    "chinese": "最坏的情况下",
+    "example": "cruel at worst",
+    "note": "at best ... at worst ... 常用于评价范围。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0056",
+    "kind": "短语"
+  },
+  {
+    "english": "athlete",
+    "chinese": "运动员",
+    "example": "heroes are athletes",
+    "note": "与 scholar 对比形成语境",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0057",
+    "kind": "单词"
+  },
+  {
+    "english": "atmospheric / oceanic",
+    "chinese": "大气的 / 海洋的",
+    "example": "atmospheric and oceanic research",
+    "note": "学术主题词",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0058",
+    "kind": "短语"
+  },
+  {
+    "english": "authenticity",
+    "chinese": "真实感；真实性",
+    "example": "ethic of authenticity",
+    "note": "authentic adj.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0059",
+    "kind": "单词"
+  },
+  {
+    "english": "available",
+    "chinese": "可获得的；可用的",
+    "example": "available information",
+    "note": "availability",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0060",
+    "kind": "单词"
+  },
+  {
+    "english": "awaken",
+    "chinese": "醒来；唤醒",
+    "example": "as soon as you awaken",
+    "note": "正式程度高于 wake up",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0061",
+    "kind": "单词"
+  },
+  {
+    "english": "awaken sb to",
+    "chinese": "使某人意识到",
+    "example": "awaken us to the growing threat",
+    "note": "≈ alert sb to",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0062",
+    "kind": "短语"
+  },
+  {
+    "english": "ballot",
+    "chinese": "投票；选票",
+    "example": "ballot papers",
+    "note": "election 语境",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0063",
+    "kind": "单词"
+  },
+  {
+    "english": "barely",
+    "chinese": "仅仅；勉强；几乎不",
+    "example": "barely enough; barely manage to do",
+    "note": "≈ hardly/scarcely；本身含否定意味。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0064",
+    "kind": "单词"
+  },
+  {
+    "english": "base ... on",
+    "chinese": "以……为基础",
+    "example": "base important policies on the best judgments",
+    "note": "be based on",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0065",
+    "kind": "短语"
+  },
+  {
+    "english": "be absorbed into",
+    "chinese": "被吸收进；融入",
+    "example": "be absorbed into a culture of consumption",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0066",
+    "kind": "短语"
+  },
+  {
+    "english": "be addicted to",
+    "chinese": "对……上瘾",
+    "example": "alcohol or drugs",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0067",
+    "kind": "短语"
+  },
+  {
+    "english": "be exposed to",
+    "chinese": "暴露于；接触",
+    "example": "be exposed to smells",
+    "note": "exposure n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0068",
+    "kind": "短语"
+  },
+  {
+    "english": "be left to",
+    "chinese": "留给……处理",
+    "example": "this process need not be left to the unconscious",
+    "note": "leave sth to sb",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0069",
+    "kind": "短语"
+  },
+  {
+    "english": "be modified in their courses",
+    "chinese": "在发展过程中可以被改变",
+    "example": "",
+    "note": "modify=修改；course=过程/进程",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0070",
+    "kind": "短语"
+  },
+  {
+    "english": "be occupied",
+    "chinese": "被占据；忙于",
+    "example": "our conscious mind is occupied",
+    "note": "occupied with/by",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0071",
+    "kind": "短语"
+  },
+  {
+    "english": "be out to do",
+    "chinese": "企图；一心想做",
+    "example": "was out to destroy our way of life",
+    "note": "常带贬义",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0072",
+    "kind": "短语"
+  },
+  {
+    "english": "be resistant to",
+    "chinese": "抵制；对……有抗拒性",
+    "example": "resistant to assimilation",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0073",
+    "kind": "短语"
+  },
+  {
+    "english": "be responsible for",
+    "chinese": "对……负责；导致",
+    "example": "responsible for the decline",
+    "note": "cause 语境",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0074",
+    "kind": "短语"
+  },
+  {
+    "english": "be subjected to",
+    "chinese": "遭受；经受",
+    "example": "be subjected to tests",
+    "note": "被动高频",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0075",
+    "kind": "短语"
+  },
+  {
+    "english": "be susceptible to",
+    "chinese": "易受……影响",
+    "example": "",
+    "note": "susceptible to emotional changes",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0076",
+    "kind": "短语"
+  },
+  {
+    "english": "bellyful of",
+    "chinese": "一肚子的；大量的",
+    "example": "a bellyful of words",
+    "note": "带讽刺语气",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0077",
+    "kind": "短语"
+  },
+  {
+    "english": "belong to the unconscious",
+    "chinese": "属于无意识过程",
+    "example": "",
+    "note": "entirely belong to the unconscious",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0078",
+    "kind": "短语"
+  },
+  {
+    "english": "belt-tightening",
+    "chinese": "勒紧裤腰带；削减开支",
+    "example": "modest belt-tightening",
+    "note": "经济阅读高频比喻",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0079",
+    "kind": "短语"
+  },
+  {
+    "english": "benefit",
+    "chinese": "受益；好处",
+    "example": "benefit from sth",
+    "note": "benefit n./v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0080",
+    "kind": "单词"
+  },
+  {
+    "english": "best available guide",
+    "chinese": "目前可获得的最佳指南",
+    "example": "science provides the best available guide",
+    "note": "available 修饰“现有的”",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0081",
+    "kind": "短语"
+  },
+  {
+    "english": "bilingual",
+    "chinese": "双语的",
+    "example": "children of immigrants tend to be bilingual",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0082",
+    "kind": "单词"
+  },
+  {
+    "english": "biomedical",
+    "chinese": "生物医学的",
+    "example": "biomedical research",
+    "note": "bio- + medical。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0083",
+    "kind": "单词"
+  },
+  {
+    "english": "bite one's nails",
+    "chinese": "咬指甲；焦虑不安",
+    "example": "isn't biting her nails yet",
+    "note": "比喻：还没有焦虑到极点",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0084",
+    "kind": "短语"
+  },
+  {
+    "english": "booth",
+    "chinese": "摊位；展位；小隔间",
+    "example": "an information booth / exhibition booth",
+    "note": "考试阅读常见实体场景词。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0085",
+    "kind": "单词"
+  },
+  {
+    "english": "brief / briefing",
+    "chinese": "简报；情况介绍；简要说明",
+    "example": "an intelligence briefing",
+    "note": "brief 也可作 adj. “简短的”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0086",
+    "kind": "短语"
+  },
+  {
+    "english": "bring ... under control",
+    "chinese": "把……置于控制之下",
+    "example": "brought under conscious control",
+    "note": "固定搭配；bring dreams under control",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0087",
+    "kind": "短语"
+  },
+  {
+    "english": "brochure",
+    "chinese": "小册子；宣传册",
+    "example": "distribute a brochure",
+    "note": "与 leaflet/pamphlet 同类。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0088",
+    "kind": "单词"
+  },
+  {
+    "english": "bubble",
+    "chinese": "泡沫；经济泡沫",
+    "example": "bubbles in the job market",
+    "note": "asset bubble",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0089",
+    "kind": "单词"
+  },
+  {
+    "english": "buy that nonsense",
+    "chinese": "相信那套胡说",
+    "example": "Americans bought that nonsense",
+    "note": "buy 可引申为“相信、接受说法”",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0090",
+    "kind": "短语"
+  },
+  {
+    "english": "bypass operation",
+    "chinese": "搭桥手术",
+    "example": "a father's bypass operation",
+    "note": "bypass 可指“绕开”，医学中常见心脏搭桥。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0091",
+    "kind": "短语"
+  },
+  {
+    "english": "cancer patient",
+    "chinese": "癌症患者",
+    "example": "cancer patients",
+    "note": "patient n.患者",
+    "source": "Day5 铁路/医疗",
+    "id": "v0092",
+    "kind": "短语"
+  },
+  {
+    "english": "candidate",
+    "chinese": "候选对象；研究对象",
+    "example": "preferred candidates",
+    "note": "语境可指“候选样本”",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0093",
+    "kind": "单词"
+  },
+  {
+    "english": "capability",
+    "chinese": "能力；能力范围",
+    "example": "have the capability to do; technical capabilities",
+    "note": "强调“能不能做到”的能力/潜力。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0094",
+    "kind": "单词"
+  },
+  {
+    "english": "captive",
+    "chinese": "受制于……的；被控制的",
+    "example": "captive shippers",
+    "note": "captive customer=缺乏替代选择",
+    "source": "Day5 铁路/医疗",
+    "id": "v0095",
+    "kind": "单词"
+  },
+  {
+    "english": "capture spoken English",
+    "chinese": "捕捉/呈现口语英语",
+    "example": "capture spoken English on the page",
+    "note": "capture=准确呈现",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0096",
+    "kind": "短语"
+  },
+  {
+    "english": "carefree",
+    "chinese": "无忧无虑的",
+    "example": "a carefree attitude",
+    "note": "care + free",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0097",
+    "kind": "单词"
+  },
+  {
+    "english": "casualness",
+    "chinese": "随意、不拘礼节",
+    "example": "casualness and absence of deference",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0098",
+    "kind": "单词"
+  },
+  {
+    "english": "cater to",
+    "chinese": "迎合；满足……需要",
+    "example": "shops catering to a knowledgeable elite",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0099",
+    "kind": "短语"
+  },
+  {
+    "english": "caution all right, panic not",
+    "chinese": "谨慎可以，恐慌不必",
+    "example": "作者态度总结",
+    "note": "把握文章主旨",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0100",
+    "kind": "短语"
+  },
+  {
+    "english": "census",
+    "chinese": "人口普查",
+    "example": "The 1990 Census revealed that…",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0101",
+    "kind": "单词"
+  },
+  {
+    "english": "ceremony",
+    "chinese": "典礼；仪式",
+    "example": "graduation ceremonies",
+    "note": "ceremonies 复数",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0102",
+    "kind": "单词"
+  },
+  {
+    "english": "cheer for",
+    "chinese": "为……高兴；欢呼支持",
+    "example": "home buyers would cheer for lower rates",
+    "note": "cheer for sb/sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0103",
+    "kind": "短语"
+  },
+  {
+    "english": "client",
+    "chinese": "客户；顾客",
+    "example": "most of her clients",
+    "note": "专业服务业常用",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0104",
+    "kind": "单词"
+  },
+  {
+    "english": "clinical",
+    "chinese": "临床的",
+    "example": "clinical treatment / depression",
+    "note": "clinic n.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0105",
+    "kind": "单词"
+  },
+  {
+    "english": "co-operative",
+    "chinese": "合作的",
+    "example": "co-operative, group-living species",
+    "note": "cooperate v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0106",
+    "kind": "短语"
+  },
+  {
+    "english": "co-operative feeling",
+    "chinese": "合作情感",
+    "example": "develop social/co-operative feelings",
+    "note": "语境义",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0107",
+    "kind": "短语"
+  },
+  {
+    "english": "coincidence",
+    "chinese": "巧合",
+    "example": "mere coincidence",
+    "note": "by coincidence",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0108",
+    "kind": "单词"
+  },
+  {
+    "english": "comfortable about",
+    "chinese": "对……感到安心",
+    "example": "comfortable about their ability...",
+    "note": "be comfortable with/about",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0109",
+    "kind": "短语"
+  },
+  {
+    "english": "command of English",
+    "chinese": "驾驭英语的能力",
+    "example": "command the English language with skill",
+    "note": "have a good command of",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0110",
+    "kind": "短语"
+  },
+  {
+    "english": "common ancestor",
+    "chinese": "共同祖先",
+    "example": "the common ancestor of the species",
+    "note": "evolution 主题高频",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0111",
+    "kind": "短语"
+  },
+  {
+    "english": "common sense",
+    "chinese": "常识",
+    "example": "practicality, common sense...",
+    "note": "高频短语",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0112",
+    "kind": "短语"
+  },
+  {
+    "english": "comparison",
+    "chinese": "比较",
+    "example": "make a comparison",
+    "note": "compare v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0113",
+    "kind": "单词"
+  },
+  {
+    "english": "compassionate",
+    "chinese": "富有同情心的",
+    "example": "a compassionate way",
+    "note": "compassion(n.) → compassionate(adj.)。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0114",
+    "kind": "单词"
+  },
+  {
+    "english": "compensating",
+    "chinese": "补偿性的",
+    "example": "注意与 complementary 区分",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0115",
+    "kind": "单词"
+  },
+  {
+    "english": "compensation",
+    "chinese": "薪酬；补偿",
+    "example": "salary and compensation",
+    "note": "求职语境常指薪酬待遇",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0116",
+    "kind": "单词"
+  },
+  {
+    "english": "compensation / salary",
+    "chinese": "salary 是固定工资；compensation 更广，含工资、奖金、福利等整体报酬",
+    "example": "",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0117",
+    "kind": "短语"
+  },
+  {
+    "english": "complementary",
+    "chinese": "互补的",
+    "example": "complementary programs",
+    "note": "complement v.",
+    "source": "09-24 移民/完形复盘；09-20 反智/经济放缓",
+    "id": "v0118",
+    "kind": "单词"
+  },
+  {
+    "english": "complex / comprehensive / complementary / compensating",
+    "chinese": "complex=复杂；comprehensive=全面综合；complementary=互补；compensating=补偿性的",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0119",
+    "kind": "短语"
+  },
+  {
+    "english": "complex ideas",
+    "chinese": "复杂思想",
+    "example": "convey complex ideas",
+    "note": "complex ≠ complicated 完全等同",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0120",
+    "kind": "短语"
+  },
+  {
+    "english": "component",
+    "chinese": "组成部分；成分",
+    "example": "of all the components of a good night's sleep",
+    "note": "component of sth",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0121",
+    "kind": "单词"
+  },
+  {
+    "english": "comprehensive",
+    "chinese": "全面的、综合的",
+    "example": "comprehensive programs",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0122",
+    "kind": "单词"
+  },
+  {
+    "english": "comprehensive / complementary / compensating",
+    "chinese": "comprehensive=全面；complementary=互补；compensating=补偿。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0123",
+    "kind": "短语"
+  },
+  {
+    "english": "comprehensive programs",
+    "chinese": "综合性的项目",
+    "example": "解决多方面需求",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0124",
+    "kind": "短语"
+  },
+  {
+    "english": "condemn",
+    "chinese": "谴责；判定……有罪",
+    "example": "be condemned for / condemn discrimination",
+    "note": "强烈负面评价",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0125",
+    "kind": "单词"
+  },
+  {
+    "english": "confuse the public",
+    "chinese": "使公众困惑",
+    "example": "arguments confuse the public",
+    "note": "confuse sb；be confused about/by。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0126",
+    "kind": "短语"
+  },
+  {
+    "english": "confused",
+    "chinese": "困惑的",
+    "example": "feel confused",
+    "note": "confuse v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0127",
+    "kind": "单词"
+  },
+  {
+    "english": "consent",
+    "chinese": "同意；许可",
+    "example": "reserved consent",
+    "note": "give/withhold consent",
+    "source": "Day5 铁路/医疗",
+    "id": "v0128",
+    "kind": "单词"
+  },
+  {
+    "english": "consequence",
+    "chinese": "后果",
+    "example": "consequences of present actions",
+    "note": "consequence of",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0129",
+    "kind": "单词"
+  },
+  {
+    "english": "conservation measure",
+    "chinese": "节能/保护措施",
+    "example": "conservation measures",
+    "note": "conservation=保护、节约",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0130",
+    "kind": "短语"
+  },
+  {
+    "english": "consolidation",
+    "chinese": "合并；整合；巩固",
+    "example": "rail industry consolidation",
+    "note": "企业兼并语境",
+    "source": "Day5 铁路/医疗",
+    "id": "v0131",
+    "kind": "单词"
+  },
+  {
+    "english": "constitute",
+    "chinese": "构成",
+    "example": "",
+    "note": "constitute the majority",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0132",
+    "kind": "单词"
+  },
+  {
+    "english": "consumption",
+    "chinese": "消费",
+    "example": "culture of consumption",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0133",
+    "kind": "单词"
+  },
+  {
+    "english": "contemplative",
+    "chinese": "沉思的；善于深思的",
+    "example": "critical, creative, contemplative",
+    "note": "contemplate v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0134",
+    "kind": "单词"
+  },
+  {
+    "english": "contempt",
+    "chinese": "轻视；蔑视",
+    "example": "contempt for old-fashionedness",
+    "note": "with contempt；contempt for",
+    "source": "09-22 梦境/正式英语；Day5 铁路/医疗",
+    "id": "v0135",
+    "kind": "单词"
+  },
+  {
+    "english": "continue along this path",
+    "chinese": "继续沿着这条道路走下去",
+    "example": "continuing along this path",
+    "note": "path 常作比喻",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0136",
+    "kind": "短语"
+  },
+  {
+    "english": "contrast",
+    "chinese": "对比",
+    "example": "pose a contrast",
+    "note": "contrast A with B",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0137",
+    "kind": "单词"
+  },
+  {
+    "english": "controversy",
+    "chinese": "争议",
+    "example": "cause a controversy",
+    "note": "controversial adj.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0138",
+    "kind": "单词"
+  },
+  {
+    "english": "convey",
+    "chinese": "传达；表达",
+    "example": "cannot convey complex ideas",
+    "note": "convey information/meaning",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0139",
+    "kind": "单词"
+  },
+  {
+    "english": "cooling",
+    "chinese": "降温；放缓",
+    "example": "economy is cooling",
+    "note": "宏观经济常用隐喻",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0140",
+    "kind": "单词"
+  },
+  {
+    "english": "coordinate",
+    "chinese": "协调；统筹",
+    "example": "coordinate service",
+    "note": "coordination n.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0141",
+    "kind": "单词"
+  },
+  {
+    "english": "coordination",
+    "chinese": "协调、统筹",
+    "example": "coordination of programs",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0142",
+    "kind": "单词"
+  },
+  {
+    "english": "cope (with)",
+    "chinese": "应付、处理",
+    "example": "local governments can’t possibly cope",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0143",
+    "kind": "短语"
+  },
+  {
+    "english": "cope / approve / retain",
+    "chinese": "cope(with)=应对；approve(of)=赞成；retain=保留。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0144",
+    "kind": "短语"
+  },
+  {
+    "english": "correlation",
+    "chinese": "相关性",
+    "example": "correlation between smoking and death",
+    "note": "correlation between A and B",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0145",
+    "kind": "单词"
+  },
+  {
+    "english": "counseling",
+    "chinese": "咨询；辅导",
+    "example": "career counseling",
+    "note": "career guidance 近义",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0146",
+    "kind": "单词"
+  },
+  {
+    "english": "counter-culture",
+    "chinese": "反主流文化；反文化",
+    "example": "1960s counter-culture",
+    "note": "counter- 表“反”",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0147",
+    "kind": "短语"
+  },
+  {
+    "english": "counterbalance",
+    "chinese": "制衡物；抵消力量",
+    "example": "be a counterbalance to...",
+    "note": "counterbalance to sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0148",
+    "kind": "单词"
+  },
+  {
+    "english": "counterpart",
+    "chinese": "对应的人/物；对手方",
+    "example": "female human counterparts",
+    "note": "counterpart in another group",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0149",
+    "kind": "单词"
+  },
+  {
+    "english": "courageous",
+    "chinese": "勇敢的；有勇气的",
+    "example": "make courageous statements",
+    "note": "courage(n.) → courageous(adj.)。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0150",
+    "kind": "单词"
+  },
+  {
+    "english": "cover / change / range / differ",
+    "chinese": "range from A to B = 在 A 到 B 范围变化；differ =彼此不同；cover=覆盖；change=变化",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0151",
+    "kind": "短语"
+  },
+  {
+    "english": "craft",
+    "chinese": "技艺；精心雕琢",
+    "example": "spontaneity over craft",
+    "note": "不是“手工艺品”",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0152",
+    "kind": "单词"
+  },
+  {
+    "english": "criteria",
+    "chinese": "标准；条件（criterion 的复数）",
+    "example": "job-search criteria",
+    "note": "按条件筛选",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0153",
+    "kind": "单词"
+  },
+  {
+    "english": "critical",
+    "chinese": "至关重要的",
+    "example": "it is critical that...",
+    "note": "critical that + (should) do",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0154",
+    "kind": "单词"
+  },
+  {
+    "english": "crucial",
+    "chinese": "关键的；至关重要的",
+    "example": "it is crucial that...",
+    "note": "≈ critical；crucial to/for",
+    "source": "09-21 公平/气候/嗅觉；09-20 反智/经济放缓",
+    "id": "v0155",
+    "kind": "单词"
+  },
+  {
+    "english": "cruelty",
+    "chinese": "残酷；虐待",
+    "example": "allegations of cruelty to animals",
+    "note": "cruel(adj.) → cruelty(n.)。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0156",
+    "kind": "单词"
+  },
+  {
+    "english": "culture of consumption",
+    "chinese": "消费文化",
+    "example": "department stores 推动的共同文化",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0157",
+    "kind": "短语"
+  },
+  {
+    "english": "daytime anxiety",
+    "chinese": "白天焦虑",
+    "example": "",
+    "note": "avoid anxiety in the daytime",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0158",
+    "kind": "短语"
+  },
+  {
+    "english": "dealership",
+    "chinese": "经销商；经销店",
+    "example": "car dealerships",
+    "note": "dealer 经销商",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0159",
+    "kind": "单词"
+  },
+  {
+    "english": "deceptive appearance of truth",
+    "chinese": "具有迷惑性的“真实外观”",
+    "example": "acquire a deceptive appearance of truth",
+    "note": "deceptive=欺骗性的。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0160",
+    "kind": "短语"
+  },
+  {
+    "english": "decision-making",
+    "chinese": "决策",
+    "example": "helps decision-making",
+    "note": "复合名词",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0161",
+    "kind": "短语"
+  },
+  {
+    "english": "decline of",
+    "chinese": "……的衰落",
+    "example": "decline of formal English",
+    "note": "decline in + 数量/程度",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0162",
+    "kind": "短语"
+  },
+  {
+    "english": "deference",
+    "chinese": "尊重、顺从",
+    "example": "absence of deference：缺少恭敬/等级礼仪",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0163",
+    "kind": "单词"
+  },
+  {
+    "english": "degradation",
+    "chinese": "退化；恶化",
+    "example": "The Degradation of Language...",
+    "note": "degrade v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0164",
+    "kind": "单词"
+  },
+  {
+    "english": "deliberately harm",
+    "chinese": "故意伤害",
+    "example": "deliberately harm an animal",
+    "note": "deliberately=故意地。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0165",
+    "kind": "短语"
+  },
+  {
+    "english": "democratizing uniformity",
+    "chinese": "大众化、民主化的统一性",
+    "example": "形容大众文化把不同阶层拉进共同的消费/表达方式",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0166",
+    "kind": "短语"
+  },
+  {
+    "english": "denote",
+    "chinese": "表示；指代",
+    "example": "The word 'talking' denotes...",
+    "note": "denote 比 mean 更正式",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0167",
+    "kind": "单词"
+  },
+  {
+    "english": "depression",
+    "chinese": "抑郁；萧条",
+    "example": "clinical depression",
+    "note": "medical/economic two senses",
+    "source": "Day5 铁路/医疗",
+    "id": "v0168",
+    "kind": "单词"
+  },
+  {
+    "english": "desire and fear",
+    "chinese": "欲望与恐惧",
+    "example": "shadows of unconscious desires and fears",
+    "note": "成对理解",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0169",
+    "kind": "短语"
+  },
+  {
+    "english": "desperate",
+    "chinese": "绝望的；走投无路的",
+    "example": "a desperate situation",
+    "note": "despair n.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0170",
+    "kind": "单词"
+  },
+  {
+    "english": "detect",
+    "chinese": "检测；察觉",
+    "example": "detect a smell/signal",
+    "note": "发现微弱信号",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0171",
+    "kind": "单词"
+  },
+  {
+    "english": "deteriorating",
+    "chinese": "恶化的",
+    "example": "a dark and deteriorating social environment",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0172",
+    "kind": "单词"
+  },
+  {
+    "english": "determine",
+    "chinese": "确定；决定",
+    "example": "determine the cause",
+    "note": "确定结果/原因",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0173",
+    "kind": "单词"
+  },
+  {
+    "english": "diffuse",
+    "chinese": "扩散",
+    "example": "gas diffuses",
+    "note": "更强调自然扩散",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0174",
+    "kind": "单词"
+  },
+  {
+    "english": "dilute",
+    "chinese": "稀释",
+    "example": "diluted solution/smell",
+    "note": "浓度降低",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0175",
+    "kind": "单词"
+  },
+  {
+    "english": "discontent (with)",
+    "chinese": "不满；不满意",
+    "example": "discontent with animal research",
+    "note": "常与 with 搭配。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0176",
+    "kind": "短语"
+  },
+  {
+    "english": "discourse",
+    "chinese": "话语、言谈；论述",
+    "example": "dress and discourse：穿着与言谈",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0177",
+    "kind": "单词"
+  },
+  {
+    "english": "discover",
+    "chinese": "发现",
+    "example": "discover a fact",
+    "note": "原先未知",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0178",
+    "kind": "单词"
+  },
+  {
+    "english": "discrimination",
+    "chinese": "歧视；区别对待",
+    "example": "discrimination against",
+    "note": "against 后接对象",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0179",
+    "kind": "单词"
+  },
+  {
+    "english": "discrimination / discriminatory",
+    "chinese": "歧视；差别待遇 / 歧视性的",
+    "example": "rate discrimination",
+    "note": "discriminate against",
+    "source": "Day5 铁路/医疗",
+    "id": "v0180",
+    "kind": "短语"
+  },
+  {
+    "english": "disintegrate",
+    "chinese": "瓦解；解体",
+    "example": "cells/tissues disintegrate",
+    "note": "physical breakdown",
+    "source": "Day5 铁路/医疗",
+    "id": "v0181",
+    "kind": "单词"
+  },
+  {
+    "english": "disperse",
+    "chinese": "分散；散开",
+    "example": "particles disperse",
+    "note": "从集中到散开",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0182",
+    "kind": "单词"
+  },
+  {
+    "english": "dissolve",
+    "chinese": "溶解",
+    "example": "salt dissolves in water",
+    "note": "物质进入溶液",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0183",
+    "kind": "单词"
+  },
+  {
+    "english": "distaste for",
+    "chinese": "对……的厌恶",
+    "example": "American distaste for intellectual pursuits",
+    "note": "distaste for sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0184",
+    "kind": "短语"
+  },
+  {
+    "english": "distinguish",
+    "chinese": "区分；辨别",
+    "example": "distinguish A from B",
+    "note": "强调区别",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0185",
+    "kind": "单词"
+  },
+  {
+    "english": "divisive",
+    "chinese": "造成分裂的",
+    "example": "divisive issues",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0186",
+    "kind": "单词"
+  },
+  {
+    "english": "do without",
+    "chinese": "没有……也能过；不需要",
+    "example": "a service people can do without",
+    "note": "高频短语",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0187",
+    "kind": "短语"
+  },
+  {
+    "english": "downscale",
+    "chinese": "降低档次；缩减",
+    "example": "downscaling shopping",
+    "note": "downscale spending",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0188",
+    "kind": "单词"
+  },
+  {
+    "english": "drawback",
+    "chinese": "缺点；弊端",
+    "example": "one drawback is that...",
+    "note": "≈ disadvantage",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0189",
+    "kind": "单词"
+  },
+  {
+    "english": "drawback / disadvantage",
+    "chinese": "都指缺点；drawback 常指某方案实际使用中的不利之处",
+    "example": "",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0190",
+    "kind": "短语"
+  },
+  {
+    "english": "dreadful",
+    "chinese": "糟糕的；可怕的",
+    "example": "dreadful headlines",
+    "note": "比 bad 更强",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0191",
+    "kind": "单词"
+  },
+  {
+    "english": "eagerness to",
+    "chinese": "渴望做……",
+    "example": "eagerness to identify with...",
+    "note": "eager to do",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0192",
+    "kind": "短语"
+  },
+  {
+    "english": "efficiency",
+    "chinese": "效率",
+    "example": "improve efficiency",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0193",
+    "kind": "单词"
+  },
+  {
+    "english": "elegant atmosphere",
+    "chinese": "优雅的氛围",
+    "example": "百货商店语境",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0194",
+    "kind": "短语"
+  },
+  {
+    "english": "elevated",
+    "chinese": "高雅的；提升的",
+    "example": "even the most well regarded wrote...",
+    "note": "elevated style 语境",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0195",
+    "kind": "单词"
+  },
+  {
+    "english": "endless studies",
+    "chinese": "没完没了的研究",
+    "example": "endless studies kill action",
+    "note": "endless=无休止的",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0196",
+    "kind": "短语"
+  },
+  {
+    "english": "enlist",
+    "chinese": "征召；邀请加入",
+    "example": "a panel enlisted by the White House",
+    "note": "enlist sb to do",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0197",
+    "kind": "单词"
+  },
+  {
+    "english": "entertaining",
+    "chinese": "有趣的；令人愉快的",
+    "example": "just as entertaining",
+    "note": "entertain v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0198",
+    "kind": "单词"
+  },
+  {
+    "english": "enthusiastic support",
+    "chinese": "热情支持",
+    "example": "show enthusiastic support",
+    "note": "attitude phrase；最强正向态度之一",
+    "source": "Day5 铁路/医疗",
+    "id": "v0199",
+    "kind": "短语"
+  },
+  {
+    "english": "environmentally sound",
+    "chinese": "环境上合理的；环保可靠的",
+    "example": "plants be environmentally sound",
+    "note": "sound=合理可靠的",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0200",
+    "kind": "短语"
+  },
+  {
+    "english": "episode",
+    "chinese": "一段经历；事件；一集",
+    "example": "give an episode of the information war",
+    "note": "语境义常为“一段事件/插曲”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0201",
+    "kind": "单词"
+  },
+  {
+    "english": "equally involved",
+    "chinese": "同样参与其中",
+    "example": "not all parts ... are equally involved",
+    "note": "be involved in",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0202",
+    "kind": "短语"
+  },
+  {
+    "english": "espionage",
+    "chinese": "间谍活动；谍报工作",
+    "example": "electronic espionage / industrial espionage",
+    "note": "比 spy 更书面。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0203",
+    "kind": "单词"
+  },
+  {
+    "english": "estimate",
+    "chinese": "估计；估算值",
+    "example": "estimates range from A to B",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0204",
+    "kind": "单词"
+  },
+  {
+    "english": "estimates range from A to B",
+    "chinese": "估计值从 A 到 B 不等",
+    "example": "range from…to… 是固定搭配",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0205",
+    "kind": "短语"
+  },
+  {
+    "english": "even if",
+    "chinese": "即使",
+    "example": "even if + 假设条件",
+    "note": "让步假设",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0206",
+    "kind": "短语"
+  },
+  {
+    "english": "evolve from",
+    "chinese": "由……发展而来",
+    "example": "evolves from common sense",
+    "note": "evolve into/from",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0207",
+    "kind": "短语"
+  },
+  {
+    "english": "evolve independently",
+    "chinese": "独立演化",
+    "example": "fairness evolved independently",
+    "note": "evolve v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0208",
+    "kind": "短语"
+  },
+  {
+    "english": "exemplify",
+    "chinese": "例证；体现",
+    "example": "Huckleberry Finn exemplified...",
+    "note": "exemplify = be an example of",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0209",
+    "kind": "单词"
+  },
+  {
+    "english": "exercise conscious control",
+    "chinese": "实施有意识的控制",
+    "example": "",
+    "note": "exercise control over",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0210",
+    "kind": "短语"
+  },
+  {
+    "english": "expect sb to do",
+    "chinese": "期待某人做……",
+    "example": "parents expect children to acquire...",
+    "note": "常考结构",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0211",
+    "kind": "短语"
+  },
+  {
+    "english": "exploitation",
+    "chinese": "剥削；利用",
+    "example": "exploitation and control",
+    "note": "exploit→exploitation",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0212",
+    "kind": "单词"
+  },
+  {
+    "english": "expressive",
+    "chinese": "有表现力的",
+    "example": "more expressive than...",
+    "note": "expressiveness n.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0213",
+    "kind": "单词"
+  },
+  {
+    "english": "expressive / expression",
+    "chinese": "富表现力的 / 表达",
+    "example": "powerfully expressive",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0214",
+    "kind": "短语"
+  },
+  {
+    "english": "extinguish",
+    "chinese": "熄灭；扑灭；使消亡",
+    "example": "extinguish the embers",
+    "note": "可用于 fire/hope/progress 等抽象对象。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0215",
+    "kind": "单词"
+  },
+  {
+    "english": "extravagantly",
+    "chinese": "挥霍地；过度地",
+    "example": "spend extravagantly",
+    "note": "extravagant adj.；spend extravagantly",
+    "source": "Day5 铁路/医疗",
+    "id": "v0216",
+    "kind": "单词"
+  },
+  {
+    "english": "fact of life",
+    "chinese": "不可避免的生活现实",
+    "example": "accept death as a fact of life",
+    "note": "固定表达",
+    "source": "Day5 铁路/医疗",
+    "id": "v0217",
+    "kind": "短语"
+  },
+  {
+    "english": "failure to confront",
+    "chinese": "未能正视/面对……",
+    "example": "failure to confront death",
+    "note": "confront=直面",
+    "source": "Day5 铁路/医疗",
+    "id": "v0218",
+    "kind": "短语"
+  },
+  {
+    "english": "fair pay / pay rise",
+    "chinese": "公平报酬 / 加薪",
+    "example": "a fair pay rise",
+    "note": "pay 可作“薪酬”；rise 为英式“上涨、加薪”",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0219",
+    "kind": "短语"
+  },
+  {
+    "english": "fair play",
+    "chinese": "公平竞争；公平对待",
+    "example": "ensure fair play",
+    "note": "体育比喻→公平",
+    "source": "Day5 铁路/医疗",
+    "id": "v0220",
+    "kind": "短语"
+  },
+  {
+    "english": "fairly evenly spread",
+    "chinese": "相当均匀地分布",
+    "example": "be fairly evenly spread",
+    "note": "fairly=相当",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0221",
+    "kind": "短语"
+  },
+  {
+    "english": "fairness",
+    "chinese": "公平",
+    "example": "a sense of fairness",
+    "note": "fair adj.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0222",
+    "kind": "单词"
+  },
+  {
+    "english": "fashion",
+    "chinese": "制定；塑造",
+    "example": "fashioning conservation measures",
+    "note": "fashion v.=形成、制定",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0223",
+    "kind": "单词"
+  },
+  {
+    "english": "federal study predicts that…",
+    "chinese": "联邦研究预测……",
+    "example": "predict + 宾语从句",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0224",
+    "kind": "短语"
+  },
+  {
+    "english": "file and polish nails",
+    "chinese": "修锉并涂亮指甲",
+    "example": "cutting, filing or polishing nails",
+    "note": "file v.=锉",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0225",
+    "kind": "短语"
+  },
+  {
+    "english": "financial incentive",
+    "chinese": "财政/经济激励",
+    "example": "offer financial incentives",
+    "note": "incentive to do",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0226",
+    "kind": "短语"
+  },
+  {
+    "english": "fit into",
+    "chinese": "融入；适应",
+    "example": "immigrants are quickly fitting into this common culture",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0227",
+    "kind": "短语"
+  },
+  {
+    "english": "float through",
+    "chinese": "飘过；在……中飘动",
+    "example": "smells float through the air",
+    "note": "float v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0228",
+    "kind": "短语"
+  },
+  {
+    "english": "folk(s)",
+    "chinese": "人们；普通人",
+    "example": "most folks",
+    "note": "较口语",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0229",
+    "kind": "短语"
+  },
+  {
+    "english": "for sure",
+    "chinese": "确定地；无疑地",
+    "example": "we didn't know for sure",
+    "note": "口语高频",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0230",
+    "kind": "短语"
+  },
+  {
+    "english": "for the sake of",
+    "chinese": "为了……本身；为了……的缘故",
+    "example": "for the sake of knowledge",
+    "note": "高频固定搭配",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0231",
+    "kind": "短语"
+  },
+  {
+    "english": "foreign-born",
+    "chinese": "国外出生的；外来移民的",
+    "example": "foreign-born Asians and Hispanics",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0232",
+    "kind": "短语"
+  },
+  {
+    "english": "formal / informal / informality",
+    "chinese": "正式 / 非正式 / 非正式性",
+    "example": "formal English; informality",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0233",
+    "kind": "短语"
+  },
+  {
+    "english": "formal speech/writing",
+    "chinese": "正式口语/写作",
+    "example": "death of formal speech, writing...",
+    "note": "与 spoken English 对比",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0234",
+    "kind": "短语"
+  },
+  {
+    "english": "formulate",
+    "chinese": "系统地提出；制定",
+    "example": "Freud formulated his revolutionary theory",
+    "note": "formulate a theory/plan",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0235",
+    "kind": "单词"
+  },
+  {
+    "english": "freight",
+    "chinese": "货运；货物",
+    "example": "freight traffic / freight rates",
+    "note": "铁路语境高频",
+    "source": "Day5 铁路/医疗",
+    "id": "v0236",
+    "kind": "单词"
+  },
+  {
+    "english": "frenzied",
+    "chinese": "狂热的；疯狂的",
+    "example": "frenzied overbidding",
+    "note": "frenzy n.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0237",
+    "kind": "单词"
+  },
+  {
+    "english": "from bad to worse",
+    "chinese": "每况愈下；越来越糟",
+    "example": "turn from bad to worse",
+    "note": "固定短语",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0238",
+    "kind": "短语"
+  },
+  {
+    "english": "from many quarters",
+    "chinese": "来自各方面",
+    "example": "voices come from many quarters",
+    "note": "quarter=方面/群体",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0239",
+    "kind": "短语"
+  },
+  {
+    "english": "fruitless",
+    "chinese": "无成果的、徒劳的",
+    "example": "",
+    "note": "fruitless effort",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0240",
+    "kind": "单词"
+  },
+  {
+    "english": "functional / artistic",
+    "chinese": "实用功能性的 / 艺术审美性的",
+    "example": "paper plates vs china",
+    "note": "本题核心比喻",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0241",
+    "kind": "短语"
+  },
+  {
+    "english": "fund low-cost housing",
+    "chinese": "资助低成本住房",
+    "example": "fund 作动词“提供资金”",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0242",
+    "kind": "短语"
+  },
+  {
+    "english": "futile",
+    "chinese": "徒劳的；无效的",
+    "example": "futile treatment",
+    "note": "≈ useless but formal",
+    "source": "Day5 铁路/医疗",
+    "id": "v0243",
+    "kind": "单词"
+  },
+  {
+    "english": "gene necessary to",
+    "chinese": "……所必需的基因",
+    "example": "genes necessary to generate...",
+    "note": "necessary for/to",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0244",
+    "kind": "短语"
+  },
+  {
+    "english": "generate",
+    "chinese": "产生；生成",
+    "example": "feelings generated during the day",
+    "note": "generate electricity/data；generate emotion/data",
+    "source": "09-21 公平/气候/嗅觉；09-22 梦境/正式英语",
+    "id": "v0245",
+    "kind": "单词"
+  },
+  {
+    "english": "generous",
+    "chinese": "慷慨的",
+    "example": "more generous",
+    "note": "generosity n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0246",
+    "kind": "单词"
+  },
+  {
+    "english": "genetically programmed",
+    "chinese": "由基因预设的",
+    "example": "genetically programmed to...",
+    "note": "programmed to do",
+    "source": "Day5 铁路/医疗",
+    "id": "v0247",
+    "kind": "短语"
+  },
+  {
+    "english": "get moving",
+    "chinese": "行动起来",
+    "example": "we should get moving",
+    "note": "口语高频",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0248",
+    "kind": "短语"
+  },
+  {
+    "english": "get to the root(s) of",
+    "chinese": "找到……的根源；追根究底",
+    "example": "get to the roots of an issue",
+    "note": "高频写作/阅读短语。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0249",
+    "kind": "短语"
+  },
+  {
+    "english": "gold rush",
+    "chinese": "淘金热；抢购热潮",
+    "example": "a new gold rush",
+    "note": "比喻资本涌入",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0250",
+    "kind": "短语"
+  },
+  {
+    "english": "grasp",
+    "chinese": "理解；抓住",
+    "example": "intelligence seeks to grasp...",
+    "note": "grasp an idea",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0251",
+    "kind": "单词"
+  },
+  {
+    "english": "grave",
+    "chinese": "坟墓",
+    "example": "went to early graves",
+    "note": "early grave=早逝",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0252",
+    "kind": "单词"
+  },
+  {
+    "english": "graveyard",
+    "chinese": "墓地；（文中比喻）语言消亡之地",
+    "example": "America as a “graveyard” for languages：语言逐渐消失的比喻",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0253",
+    "kind": "单词"
+  },
+  {
+    "english": "greatness",
+    "chinese": "伟大；巨大程度",
+    "example": "threatens its greatness",
+    "note": "great adj.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0254",
+    "kind": "单词"
+  },
+  {
+    "english": "grievance",
+    "chinese": "不满；委屈；抱怨",
+    "example": "a sense of grievance",
+    "note": "grievance against/about",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0255",
+    "kind": "单词"
+  },
+  {
+    "english": "grieve / grievance",
+    "chinese": "悲伤 / 不满、委屈",
+    "example": "grieve over; sense of grievance（注意词形不同）",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0256",
+    "kind": "短语"
+  },
+  {
+    "english": "grieve over",
+    "chinese": "为……感到悲伤",
+    "example": "grieving over the loss",
+    "note": "grief n.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0257",
+    "kind": "短语"
+  },
+  {
+    "english": "grind out",
+    "chinese": "机械地、大量地产出",
+    "example": "the system grinds out people",
+    "note": "带贬义，像机器生产",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0258",
+    "kind": "短语"
+  },
+  {
+    "english": "growing threat",
+    "chinese": "日益增长的威胁",
+    "example": "the growing threat of global warming",
+    "note": "threat to/of",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0259",
+    "kind": "短语"
+  },
+  {
+    "english": "guarantee",
+    "chinese": "保证；担保",
+    "example": "guarantee the truthfulness of information",
+    "note": "guarantee + n.; guarantee that...",
+    "source": "Day4 情报/动物实验",
+    "id": "v0260",
+    "kind": "单词"
+  },
+  {
+    "english": "harness",
+    "chinese": "利用；驾驭",
+    "example": "if these events can be harnessed",
+    "note": "harness energy/power",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0261",
+    "kind": "单词"
+  },
+  {
+    "english": "help sb toward independence",
+    "chinese": "帮助某人走向独立",
+    "example": "toward 强调方向",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0262",
+    "kind": "短语"
+  },
+  {
+    "english": "help sb. toward independence",
+    "chinese": "帮助某人走向独立",
+    "example": "toward 表方向",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0263",
+    "kind": "短语"
+  },
+  {
+    "english": "Hence / But / Even / Only",
+    "chinese": "Hence=因此；But=转折；Even=甚至；Only=只是/仅仅",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0264",
+    "kind": "短语"
+  },
+  {
+    "english": "hi-tech means",
+    "chinese": "高科技手段",
+    "example": "employ hi-tech means in research",
+    "note": "means 单复数同形。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0265",
+    "kind": "短语"
+  },
+  {
+    "english": "hinder",
+    "chinese": "阻碍",
+    "example": "hinder progress",
+    "note": "≈ impede",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0266",
+    "kind": "单词"
+  },
+  {
+    "english": "historian",
+    "chinese": "历史学家",
+    "example": "historian and professor",
+    "note": "history→historian",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0267",
+    "kind": "单词"
+  },
+  {
+    "english": "hold steady",
+    "chinese": "保持稳定",
+    "example": "home prices are holding steady",
+    "note": "经济数据常用",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0268",
+    "kind": "短语"
+  },
+  {
+    "english": "homogenize / homogenizing",
+    "chinese": "使同质化、使趋同",
+    "example": "homogenizing people；题目同义替换为 assimilating",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0269",
+    "kind": "短语"
+  },
+  {
+    "english": "hostility to",
+    "chinese": "对……的敌意",
+    "example": "hostility to intellect",
+    "note": "hostile to",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0270",
+    "kind": "短语"
+  },
+  {
+    "english": "humble / noble",
+    "chinese": "卑微的 / 高贵的",
+    "example": "选项对比",
+    "note": "humble 也可“谦逊”",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0271",
+    "kind": "短语"
+  },
+  {
+    "english": "humiliated",
+    "chinese": "受羞辱的；感到丢脸的",
+    "example": "feel humiliated",
+    "note": "humiliate sb",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0272",
+    "kind": "单词"
+  },
+  {
+    "english": "identical",
+    "chinese": "完全相同的",
+    "example": "views are identical",
+    "note": "比 similar 强",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0273",
+    "kind": "单词"
+  },
+  {
+    "english": "identifiable",
+    "chinese": "可识别的",
+    "example": "identifiable signal",
+    "note": "identify",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0274",
+    "kind": "单词"
+  },
+  {
+    "english": "identify",
+    "chinese": "识别；确定",
+    "example": "identify what is upsetting",
+    "note": "identify the cause",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0275",
+    "kind": "单词"
+  },
+  {
+    "english": "identify / visualize",
+    "chinese": "识别 / 在脑中想象",
+    "example": "identify the problem; visualize an ending",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0276",
+    "kind": "短语"
+  },
+  {
+    "english": "identify with",
+    "chinese": "认同；产生共鸣",
+    "example": "identify with children",
+    "note": "不是“识别”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0277",
+    "kind": "短语"
+  },
+  {
+    "english": "identifying",
+    "chinese": "识别、确认",
+    "example": "",
+    "note": "identify ≠ associate",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0278",
+    "kind": "单词"
+  },
+  {
+    "english": "if only",
+    "chinese": "要是……就好了",
+    "example": "表达愿望/遗憾",
+    "note": "不要和 only if 混",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0279",
+    "kind": "短语"
+  },
+  {
+    "english": "ill-treated",
+    "chinese": "受到不公正/不良对待的",
+    "example": "be ill-treated",
+    "note": "ill- 作前缀表示不好",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0280",
+    "kind": "短语"
+  },
+  {
+    "english": "immunization",
+    "chinese": "免疫；免疫接种",
+    "example": "oppose immunizations",
+    "note": "≈ vaccination（接种）。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0281",
+    "kind": "单词"
+  },
+  {
+    "english": "implicit",
+    "chinese": "含蓄的；隐含的",
+    "example": "implicit counseling",
+    "note": "未明说但隐含提供",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0282",
+    "kind": "单词"
+  },
+  {
+    "english": "improper",
+    "chinese": "不合适的；不恰当的",
+    "example": "improper behavior / an improper remark",
+    "note": "≠ improper “错误”这么简单，更强调“不符合规范/场合”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0283",
+    "kind": "单词"
+  },
+  {
+    "english": "impulse",
+    "chinese": "冲动；脉冲",
+    "example": "nerve impulse",
+    "note": "生理/物理语境",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0284",
+    "kind": "单词"
+  },
+  {
+    "english": "in despair",
+    "chinese": "绝望",
+    "example": "not in despair",
+    "note": "despair n./v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0285",
+    "kind": "短语"
+  },
+  {
+    "english": "in spite of / despite",
+    "chinese": "尽管",
+    "example": "in spite of endless talk of difference：尽管不断谈论“差异”",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0286",
+    "kind": "短语"
+  },
+  {
+    "english": "inability",
+    "chinese": "无能力；不能",
+    "example": "inability to cure the disease",
+    "note": "unable adj.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0287",
+    "kind": "单词"
+  },
+  {
+    "english": "inadequate",
+    "chinese": "不充分的；不足的",
+    "example": "research alone is inadequate",
+    "note": "≈ insufficient",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0288",
+    "kind": "单词"
+  },
+  {
+    "english": "inclined to",
+    "chinese": "倾向于……",
+    "example": "be inclined to weigh...",
+    "note": "≈ tend to",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0289",
+    "kind": "短语"
+  },
+  {
+    "english": "incompetent",
+    "chinese": "无能力的；不称职的",
+    "example": "an incompetent worker",
+    "note": "competence",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0290",
+    "kind": "单词"
+  },
+  {
+    "english": "inconclusive",
+    "chinese": "没有定论的；不确定的",
+    "example": "the evidence was inconclusive",
+    "note": "conclusive 反义",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0291",
+    "kind": "单词"
+  },
+  {
+    "english": "Indeed / Likewise / Therefore / Furthermore",
+    "chinese": "Indeed=确实，强化前句；Likewise=同样；Therefore=因此；Furthermore=此外递进。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0292",
+    "kind": "短语"
+  },
+  {
+    "english": "independent voice",
+    "chinese": "独立立场；独立声音",
+    "example": "keep its independent voice",
+    "note": "阅读中常指机构保持独立判断。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0293",
+    "kind": "短语"
+  },
+  {
+    "english": "index / indices",
+    "chinese": "指标；指数",
+    "example": "social indices / indices of assimilation",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0294",
+    "kind": "短语"
+  },
+  {
+    "english": "indicate",
+    "chinese": "表明；指示",
+    "example": "indicate the danger of fire",
+    "note": "indicator n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0295",
+    "kind": "单词"
+  },
+  {
+    "english": "indicator",
+    "chinese": "指标；指示物",
+    "example": "a good economic indicator",
+    "note": "economic indicator",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0296",
+    "kind": "单词"
+  },
+  {
+    "english": "indifferent",
+    "chinese": "漠不关心的",
+    "example": "",
+    "note": "be indifferent to",
+    "source": "Day5 铁路/医疗",
+    "id": "v0297",
+    "kind": "单词"
+  },
+  {
+    "english": "indignation",
+    "chinese": "愤慨；义愤",
+    "example": "feelings of righteous indignation",
+    "note": "较强的道德愤怒",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0298",
+    "kind": "单词"
+  },
+  {
+    "english": "indispensable",
+    "chinese": "不可或缺的",
+    "example": "be indispensable to/for",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0299",
+    "kind": "单词"
+  },
+  {
+    "english": "induce",
+    "chinese": "引起；诱发",
+    "example": "enough to induce resentment",
+    "note": "induce sb to do / induce sth",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0300",
+    "kind": "单词"
+  },
+  {
+    "english": "ineffective",
+    "chinese": "无效的",
+    "example": "an ineffective method",
+    "note": "effect",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0301",
+    "kind": "单词"
+  },
+  {
+    "english": "inefficient",
+    "chinese": "效率低的",
+    "example": "an inefficient system",
+    "note": "efficiency",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0302",
+    "kind": "单词"
+  },
+  {
+    "english": "inevitable",
+    "chinese": "不可避免的",
+    "example": "an inevitable decline",
+    "note": "inevitably adv.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0303",
+    "kind": "单词"
+  },
+  {
+    "english": "inflating / expanding / increasing / extending",
+    "chinese": "increase=数量上增加；expand=规模扩大；extend=范围/时间延伸；inflate=膨胀、抬高",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0304",
+    "kind": "短语"
+  },
+  {
+    "english": "informality",
+    "chinese": "非正式性",
+    "example": "denote informality",
+    "note": "formal 的反义",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0305",
+    "kind": "单词"
+  },
+  {
+    "english": "ingredient",
+    "chinese": "要素；成分",
+    "example": "a necessary ingredient to a boom",
+    "note": "key ingredient",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0306",
+    "kind": "单词"
+  },
+  {
+    "english": "innate goodness",
+    "chinese": "天生的善良",
+    "example": "preserve his innate goodness",
+    "note": "innate=与生俱来的",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0307",
+    "kind": "短语"
+  },
+  {
+    "english": "innermost desires and fears",
+    "chinese": "内心最深处的欲望与恐惧",
+    "example": "",
+    "note": "innermost=最内在的",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0308",
+    "kind": "短语"
+  },
+  {
+    "english": "insensitive",
+    "chinese": "不敏感的；迟钝的",
+    "example": "insensitive smellers",
+    "note": "sensitive 反义",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0309",
+    "kind": "单词"
+  },
+  {
+    "english": "insignificant",
+    "chinese": "不重要的；不显著的",
+    "example": "the number was insignificant",
+    "note": "significant 反义",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0310",
+    "kind": "单词"
+  },
+  {
+    "english": "insufficient",
+    "chinese": "不足的",
+    "example": "insufficient evidence",
+    "note": "sufficiency",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0311",
+    "kind": "单词"
+  },
+  {
+    "english": "insurance policy",
+    "chinese": "保险单；保险措施",
+    "example": "take out an insurance policy",
+    "note": "take out insurance",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0312",
+    "kind": "短语"
+  },
+  {
+    "english": "intellect",
+    "chinese": "智力；理性思考能力",
+    "example": "value intellect / hostility to intellect",
+    "note": "区别 intelligence：intellect 更偏理性、思辨能力",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0313",
+    "kind": "单词"
+  },
+  {
+    "english": "intellect and reasoning",
+    "chinese": "智力与推理",
+    "example": "center of intellect and reasoning",
+    "note": "reasoning=推理",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0314",
+    "kind": "短语"
+  },
+  {
+    "english": "intellectual",
+    "chinese": "知识性的；学术性的；智力的",
+    "example": "the language of intellectual biology",
+    "note": "语境中强调专业/学术表达。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0315",
+    "kind": "单词"
+  },
+  {
+    "english": "intellectual promise",
+    "chinese": "智力潜力；学术潜质",
+    "example": "least intellectual promise",
+    "note": "promise 可指“前途、潜质”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0316",
+    "kind": "短语"
+  },
+  {
+    "english": "intellectual pursuit",
+    "chinese": "智力/学术追求",
+    "example": "intellectual pursuits",
+    "note": "pursuit=追求；活动",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0317",
+    "kind": "短语"
+  },
+  {
+    "english": "intend to show",
+    "chinese": "意在说明",
+    "example": "",
+    "note": "作者意图题高频",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0318",
+    "kind": "短语"
+  },
+  {
+    "english": "intensely powerful",
+    "chinese": "极其强烈、有力的",
+    "example": "intensely powerful mental events",
+    "note": "intensely 修饰程度",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0319",
+    "kind": "短语"
+  },
+  {
+    "english": "interaction",
+    "chinese": "互动；相互作用",
+    "example": "human interaction",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0320",
+    "kind": "单词"
+  },
+  {
+    "english": "interactive feature",
+    "chinese": "交互式功能",
+    "example": "an interactive feature",
+    "note": "feature=功能/特点",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0321",
+    "kind": "短语"
+  },
+  {
+    "english": "interest",
+    "chinese": "利益；利害关系",
+    "example": "interests of winners and losers",
+    "note": "不是只有“兴趣”义",
+    "source": "Day5 铁路/医疗",
+    "id": "v0322",
+    "kind": "单词"
+  },
+  {
+    "english": "intermarriage",
+    "chinese": "异族/不同群体通婚",
+    "example": "rates of intermarriage",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0323",
+    "kind": "单词"
+  },
+  {
+    "english": "invaluable",
+    "chinese": "极其宝贵的",
+    "example": "probably an invaluable one",
+    "note": "注意不是“没有价值”",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0324",
+    "kind": "单词"
+  },
+  {
+    "english": "investigation",
+    "chinese": "调查；研究",
+    "example": "careful investigation reveals truth",
+    "note": "investigate v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0325",
+    "kind": "单词"
+  },
+  {
+    "english": "invincible",
+    "chinese": "不可战胜的",
+    "example": "seem invincible",
+    "note": "in- + vincible",
+    "source": "Day5 铁路/医疗",
+    "id": "v0326",
+    "kind": "单词"
+  },
+  {
+    "english": "jealous / jealous of",
+    "chinese": "嫉妒的",
+    "example": "jealous of each other",
+    "note": "jealousy n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0327",
+    "kind": "短语"
+  },
+  {
+    "english": "job hunter",
+    "chinese": "求职者",
+    "example": "job hunters",
+    "note": "≈ job seeker",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0328",
+    "kind": "短语"
+  },
+  {
+    "english": "keep abreast of",
+    "chinese": "及时了解；跟上最新进展",
+    "example": "keep abreast of openings",
+    "note": "高频短语",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0329",
+    "kind": "短语"
+  },
+  {
+    "english": "keep abreast of / keep an eye on",
+    "chinese": "前者=持续掌握最新进展；后者=留意、监视某对象",
+    "example": "",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0330",
+    "kind": "短语"
+  },
+  {
+    "english": "keep an eye on",
+    "chinese": "留意；密切关注",
+    "example": "keep an eye on demand",
+    "note": "≈ watch closely",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0331",
+    "kind": "短语"
+  },
+  {
+    "english": "laborious",
+    "chinese": "费力的；艰难的",
+    "example": "laborious speech",
+    "note": "laborious work",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0332",
+    "kind": "单词"
+  },
+  {
+    "english": "lack of morals",
+    "chinese": "缺乏道德",
+    "example": "a lack of morals",
+    "note": "lack of + n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0333",
+    "kind": "短语"
+  },
+  {
+    "english": "lag",
+    "chinese": "滞后；落后；增长迟缓",
+    "example": "sales have been lagging",
+    "note": "lag behind",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0334",
+    "kind": "单词"
+  },
+  {
+    "english": "largely",
+    "chinese": "主要地；在很大程度上",
+    "example": "this is largely because...",
+    "note": "≈ mainly",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0335",
+    "kind": "单词"
+  },
+  {
+    "english": "lay the roots for",
+    "chinese": "为……奠定根基",
+    "example": "lay the roots for the CIA",
+    "note": "≈ lay the foundation for。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0336",
+    "kind": "短语"
+  },
+  {
+    "english": "legislative initiative",
+    "chinese": "立法倡议",
+    "example": "take the legislative initiative",
+    "note": "initiative=主动权/倡议",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0337",
+    "kind": "短语"
+  },
+  {
+    "english": "legislative measure",
+    "chinese": "立法措施",
+    "example": "take legislative measures",
+    "note": "take measures to do",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0338",
+    "kind": "短语"
+  },
+  {
+    "english": "less well known",
+    "chinese": "不那么知名",
+    "example": "less well-known surnames",
+    "note": "well-known 的比较结构",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0339",
+    "kind": "短语"
+  },
+  {
+    "english": "life / existence / survival / maintenance",
+    "chinese": "life skills=生活技能是固定搭配；survival 偏“生存”；maintenance=维持",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0340",
+    "kind": "短语"
+  },
+  {
+    "english": "life expectancy",
+    "chinese": "预期寿命",
+    "example": "longer life expectancy",
+    "note": "高频社会话题词",
+    "source": "Day5 铁路/医疗",
+    "id": "v0341",
+    "kind": "短语"
+  },
+  {
+    "english": "life skills",
+    "chinese": "生活技能",
+    "example": "everyday life skills",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0342",
+    "kind": "短语"
+  },
+  {
+    "english": "limbic system",
+    "chinese": "边缘系统；情绪脑区",
+    "example": "the 'emotional brain'",
+    "note": "与 emotion 相关",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0343",
+    "kind": "短语"
+  },
+  {
+    "english": "limit",
+    "chinese": "限制；极限",
+    "example": "accept a certain limit",
+    "note": "事实边界语境",
+    "source": "Day5 铁路/医疗",
+    "id": "v0344",
+    "kind": "单词"
+  },
+  {
+    "english": "literally",
+    "chinese": "确实地；字面上地",
+    "example": "literally, do it in their sleep",
+    "note": "语境需判断",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0345",
+    "kind": "单词"
+  },
+  {
+    "english": "liveliness",
+    "chinese": "鲜活感；生气",
+    "example": "denote liveliness",
+    "note": "lively adj.；与 text 中 real liveliness 对应",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0346",
+    "kind": "单词"
+  },
+  {
+    "english": "lodging / shelter / dwelling / house",
+    "chinese": "lodging=临时住宿；shelter=收容/庇护场所；dwelling=住所（正式）；house=房屋。",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0347",
+    "kind": "短语"
+  },
+  {
+    "english": "look out for",
+    "chinese": "留意；寻找；当心",
+    "example": "look out for opportunities",
+    "note": "与 look after 区分",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0348",
+    "kind": "短语"
+  },
+  {
+    "english": "luxury goods",
+    "chinese": "奢侈品",
+    "example": "grapes are luxury goods",
+    "note": "经济/社会类高频",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0349",
+    "kind": "短语"
+  },
+  {
+    "english": "make a splash",
+    "chinese": "引起轰动；造成巨大反响",
+    "example": "make the biggest splash",
+    "note": "splash 本义“水花”，引申为“轰动效应”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0350",
+    "kind": "短语"
+  },
+  {
+    "english": "make up a growing percentage of",
+    "chinese": "构成越来越大的比例",
+    "example": "The homeless make up a growing percentage of America’s population.",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0351",
+    "kind": "短语"
+  },
+  {
+    "english": "manicurist",
+    "chinese": "美甲师",
+    "example": "a 47-year-old manicurist",
+    "note": "manicure 美甲",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0352",
+    "kind": "单词"
+  },
+  {
+    "english": "markedly",
+    "chinese": "明显地；显著地",
+    "example": "behaviour became markedly different",
+    "note": "≈ noticeably",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0353",
+    "kind": "单词"
+  },
+  {
+    "english": "mass media",
+    "chinese": "大众媒体",
+    "example": "forces for homogenization",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0354",
+    "kind": "短语"
+  },
+  {
+    "english": "mastery",
+    "chinese": "掌握；精通；控制",
+    "example": "mastery of electronic spying",
+    "note": "mastery of sth。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0355",
+    "kind": "单词"
+  },
+  {
+    "english": "matching position",
+    "chinese": "匹配职位",
+    "example": "a matching position is posted",
+    "note": "match criteria",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0356",
+    "kind": "短语"
+  },
+  {
+    "english": "mechanism of REM sleep",
+    "chinese": "REM 睡眠机制",
+    "example": "",
+    "note": "mechanism=机制",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0357",
+    "kind": "短语"
+  },
+  {
+    "english": "medicine",
+    "chinese": "医学；医疗",
+    "example": "modern medicine",
+    "note": "不仅是“药”",
+    "source": "Day5 铁路/医疗",
+    "id": "v0358",
+    "kind": "单词"
+  },
+  {
+    "english": "memorized poetry",
+    "chinese": "背诵过的诗歌",
+    "example": "chunks of memorized poetry",
+    "note": "memorize v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0359",
+    "kind": "短语"
+  },
+  {
+    "english": "mental disorder",
+    "chinese": "精神障碍",
+    "example": "serious mental disorders",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0360",
+    "kind": "短语"
+  },
+  {
+    "english": "mental disorders",
+    "chinese": "精神障碍",
+    "example": "serious mental disorders",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0361",
+    "kind": "短语"
+  },
+  {
+    "english": "merge / merger",
+    "chinese": "合并；兼并",
+    "example": "railroad mergers; companies merge",
+    "note": "名词 merger；动词 merge",
+    "source": "Day5 铁路/医疗",
+    "id": "v0362",
+    "kind": "短语"
+  },
+  {
+    "english": "middle-brow",
+    "chinese": "中等品位/大众化的",
+    "example": "middle-brow department store",
+    "note": "常与 highbrow/lowbrow 对照",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0363",
+    "kind": "短语"
+  },
+  {
+    "english": "mildly concerned",
+    "chinese": "略有担忧",
+    "example": "only mildly concerned",
+    "note": "mildly=轻微地",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0364",
+    "kind": "短语"
+  },
+  {
+    "english": "militantly",
+    "chinese": "激进地；斗争性地",
+    "example": "militantly proclaim",
+    "note": "militant adj.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0365",
+    "kind": "单词"
+  },
+  {
+    "english": "minority",
+    "chinese": "少数群体",
+    "example": "minority group",
+    "note": "注意 minority ≠ minor",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0366",
+    "kind": "单词"
+  },
+  {
+    "english": "misinformation",
+    "chinese": "错误信息；不实信息",
+    "example": "animal-rights misinformation",
+    "note": "mis- 表“错误”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0367",
+    "kind": "单词"
+  },
+  {
+    "english": "mistrust",
+    "chinese": "不信任；怀疑",
+    "example": "intellect is mistrusted",
+    "note": "mistrust n./v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0368",
+    "kind": "单词"
+  },
+  {
+    "english": "mixed views",
+    "chinese": "混合立场；观点不完全一致",
+    "example": "mixed liberal and conservative views",
+    "note": "mixed feelings 类似",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0369",
+    "kind": "短语"
+  },
+  {
+    "english": "modesty",
+    "chinese": "谦逊",
+    "example": "denote modesty",
+    "note": "modest adj.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0370",
+    "kind": "单词"
+  },
+  {
+    "english": "monopolizing",
+    "chinese": "垄断",
+    "example": "",
+    "note": "monopoly",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0371",
+    "kind": "单词"
+  },
+  {
+    "english": "monopoly",
+    "chinese": "垄断；垄断地位",
+    "example": "concerns about monopoly",
+    "note": "反义 competition",
+    "source": "Day5 铁路/医疗",
+    "id": "v0372",
+    "kind": "单词"
+  },
+  {
+    "english": "mumble",
+    "chinese": "含糊地说；咕哝",
+    "example": "mumble through names",
+    "note": "声音低而不清",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0373",
+    "kind": "单词"
+  },
+  {
+    "english": "mutually",
+    "chinese": "相互地；彼此地",
+    "example": "mutually reinforcing / mutually beneficial",
+    "note": "mutual 是形容词；mutually 是副词。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0374",
+    "kind": "单词"
+  },
+  {
+    "english": "native intelligence",
+    "chinese": "天生智力；本能聪慧",
+    "example": "native intelligence",
+    "note": "native=与生俱来的",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0375",
+    "kind": "短语"
+  },
+  {
+    "english": "natural progression",
+    "chinese": "自然发展过程",
+    "example": "",
+    "note": "be left to their natural progression",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0376",
+    "kind": "短语"
+  },
+  {
+    "english": "necessarily",
+    "chinese": "必然地",
+    "example": "not necessarily related to",
+    "note": "not necessarily=未必",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0377",
+    "kind": "单词"
+  },
+  {
+    "english": "necessary / necessarily",
+    "chinese": "必要的 / 必然地",
+    "example": "not strictly necessary; not necessarily",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0378",
+    "kind": "短语"
+  },
+  {
+    "english": "negligence",
+    "chinese": "疏忽；失职",
+    "example": "government's negligence",
+    "note": "negligent adj.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0379",
+    "kind": "单词"
+  },
+  {
+    "english": "negotiate / negotiating",
+    "chinese": "谈判；协商",
+    "example": "negotiating compensation",
+    "note": "negotiate with sb over sth",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0380",
+    "kind": "短语"
+  },
+  {
+    "english": "neural-repair work",
+    "chinese": "神经修复工作",
+    "example": "neural-repair work during sleep",
+    "note": "neural=神经的",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0381",
+    "kind": "短语"
+  },
+  {
+    "english": "nightmare",
+    "chinese": "噩梦",
+    "example": "persistent nightmares",
+    "note": "nightmare about",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0382",
+    "kind": "单词"
+  },
+  {
+    "english": "no longer",
+    "chinese": "不再",
+    "example": "Americans no longer expect...",
+    "note": "no longer + v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0383",
+    "kind": "短语"
+  },
+  {
+    "english": "no matter",
+    "chinese": "无论如何/不论",
+    "example": "no matter + wh-",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0384",
+    "kind": "短语"
+  },
+  {
+    "english": "non-standard",
+    "chinese": "非标准的",
+    "example": "non-standard forms like Black English",
+    "note": "与 standard English 对比",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0385",
+    "kind": "短语"
+  },
+  {
+    "english": "nonconformist image",
+    "chinese": "非传统、反主流的形象",
+    "example": "a nonconformist image",
+    "note": "nonconformist=不随大流的。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0386",
+    "kind": "短语"
+  },
+  {
+    "english": "Now that / Although / Provided / Except that",
+    "chinese": "Now that=既然；Although=尽管；Provided (that)=如果/只要；Except that=只是/除了这一点",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0387",
+    "kind": "短语"
+  },
+  {
+    "english": "obvious",
+    "chinese": "明显的；显而易见的",
+    "example": "an obvious fact",
+    "note": "≈ evident/apparent。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0388",
+    "kind": "单词"
+  },
+  {
+    "english": "old-fashioned",
+    "chinese": "老式的；过时的",
+    "example": "old-fashioned English-speakers",
+    "note": "old-fashioned ≠ useless",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0389",
+    "kind": "短语"
+  },
+  {
+    "english": "on the grounds that",
+    "chinese": "以……为理由；基于……",
+    "example": "justify ... on the grounds that",
+    "note": "≈ because / on the basis that",
+    "source": "Day5 铁路/医疗",
+    "id": "v0390",
+    "kind": "短语"
+  },
+  {
+    "english": "on the horizon",
+    "chinese": "即将发生；初露端倪",
+    "example": "a boom on the horizon",
+    "note": "比喻性高频短语",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0391",
+    "kind": "短语"
+  },
+  {
+    "english": "only if",
+    "chinese": "只有……才",
+    "example": "only if 条件",
+    "note": "必要条件",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0392",
+    "kind": "短语"
+  },
+  {
+    "english": "opponent of",
+    "chinese": "……的反对者",
+    "example": "an opponent of intellectualism",
+    "note": "oppose v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0393",
+    "kind": "短语"
+  },
+  {
+    "english": "outlet",
+    "chinese": "零售店；销售点",
+    "example": "car dealerships to Gap outlets",
+    "note": "也可指“出口/渠道”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0394",
+    "kind": "单词"
+  },
+  {
+    "english": "outraged",
+    "chinese": "愤怒的；义愤的",
+    "example": "outraged by the lack of morals",
+    "note": "outrage n./v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0395",
+    "kind": "单词"
+  },
+  {
+    "english": "overbidding",
+    "chinese": "过度竞价；竞价过高",
+    "example": "frenzied overbidding",
+    "note": "bid v. 出价",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0396",
+    "kind": "单词"
+  },
+  {
+    "english": "overcharge",
+    "chinese": "索价过高；多收费",
+    "example": "shippers are overcharged",
+    "note": "over- 表过度",
+    "source": "Day5 铁路/医疗",
+    "id": "v0397",
+    "kind": "单词"
+  },
+  {
+    "english": "owe A to B",
+    "chinese": "把 A 归因于 B",
+    "example": "",
+    "note": "A owes its emergence to B",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0398",
+    "kind": "短语"
+  },
+  {
+    "english": "pace",
+    "chinese": "速度；节奏",
+    "example": "off last year's pace",
+    "note": "at a fast pace",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0399",
+    "kind": "单词"
+  },
+  {
+    "english": "package deal",
+    "chinese": "一揽子方案",
+    "example": "a package deal",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0400",
+    "kind": "短语"
+  },
+  {
+    "english": "panic",
+    "chinese": "惊慌；恐慌",
+    "example": "wake up in a panic",
+    "note": "in a panic",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0401",
+    "kind": "单词"
+  },
+  {
+    "english": "panic / panicked",
+    "chinese": "恐慌；恐慌的",
+    "example": "panic about sth",
+    "note": "panic-panic(k)ed 拼写",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0402",
+    "kind": "短语"
+  },
+  {
+    "english": "panicked",
+    "chinese": "恐慌的",
+    "example": "not panicked",
+    "note": "panic n./v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0403",
+    "kind": "单词"
+  },
+  {
+    "english": "paper plates / china",
+    "chinese": "纸盘 / 瓷器",
+    "example": "paper plates instead of china",
+    "note": "文末比喻：实用 vs 审美文化价值",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0404",
+    "kind": "短语"
+  },
+  {
+    "english": "paralysis by analysis",
+    "chinese": "分析瘫痪；因过度分析而无法行动",
+    "example": "a classic case of paralysis by analysis",
+    "note": "考研阅读高价值表达",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0405",
+    "kind": "短语"
+  },
+  {
+    "english": "participate in",
+    "chinese": "参与",
+    "example": "participate in our democracy",
+    "note": "participate in sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0406",
+    "kind": "短语"
+  },
+  {
+    "english": "particular",
+    "chinese": "特定的",
+    "example": "a particular smell",
+    "note": "≈ specific",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0407",
+    "kind": "单词"
+  },
+  {
+    "english": "pay attention",
+    "chinese": "关注",
+    "example": "starting to pay attention",
+    "note": "pay attention to",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0408",
+    "kind": "短语"
+  },
+  {
+    "english": "pay attention to",
+    "chinese": "注意；关注",
+    "example": "pay much closer attention to",
+    "note": "closer attention 强调更关注",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0409",
+    "kind": "短语"
+  },
+  {
+    "english": "perceive",
+    "chinese": "感知；察觉",
+    "example": "perceiving those smells",
+    "note": "perception n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0410",
+    "kind": "单词"
+  },
+  {
+    "english": "performative genre",
+    "chinese": "表演性文体",
+    "example": "personal, performative genre",
+    "note": "genre=体裁",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0411",
+    "kind": "短语"
+  },
+  {
+    "english": "perish",
+    "chinese": "死亡；消亡",
+    "example": "disintegrate and perish",
+    "note": "书面词",
+    "source": "Day5 铁路/医疗",
+    "id": "v0412",
+    "kind": "单词"
+  },
+  {
+    "english": "permissive",
+    "chinese": "宽松的；放任的",
+    "example": "the permissive 1960s",
+    "note": "permissiveness n.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0413",
+    "kind": "单词"
+  },
+  {
+    "english": "perplexed",
+    "chinese": "困惑的；不解的",
+    "example": "be perplexed that/by...",
+    "note": "比 confused 更书面。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0414",
+    "kind": "单词"
+  },
+  {
+    "english": "persist / persistent",
+    "chinese": "持续 / 持续的",
+    "example": "persistent nightmares",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0415",
+    "kind": "短语"
+  },
+  {
+    "english": "persist till...",
+    "chinese": "持续到……",
+    "example": "",
+    "note": "persist till the time we fall asleep",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0416",
+    "kind": "短语"
+  },
+  {
+    "english": "persistent",
+    "chinese": "持续的；反复的",
+    "example": "persistent nightmares",
+    "note": "persistent problem",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0417",
+    "kind": "单词"
+  },
+  {
+    "english": "personal search agent",
+    "chinese": "个性化搜索代理",
+    "example": "use a personal search agent",
+    "note": "文中指自动替你搜职位的工具",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0418",
+    "kind": "短语"
+  },
+  {
+    "english": "personality",
+    "chinese": "个性",
+    "example": "denote personality",
+    "note": "personal/personality 区分",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0419",
+    "kind": "单词"
+  },
+  {
+    "english": "pervasive",
+    "chinese": "普遍的；弥漫的",
+    "example": "pervasive anti-intellectualism",
+    "note": "≈ widespread",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0420",
+    "kind": "单词"
+  },
+  {
+    "english": "phenomenon",
+    "chinese": "现象",
+    "example": "explain a phenomenon",
+    "note": "复数 phenomena",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0421",
+    "kind": "单词"
+  },
+  {
+    "english": "place a high value on",
+    "chinese": "高度重视；看重",
+    "example": "place a very high value on intellect",
+    "note": "value 作名词：价值；该短语≈attach importance to",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0422",
+    "kind": "短语"
+  },
+  {
+    "english": "pockets of",
+    "chinese": "局部、小片区域的",
+    "example": "pockets of seething anger：局部涌动的愤怒",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0423",
+    "kind": "短语"
+  },
+  {
+    "english": "poisonous",
+    "chinese": "有害的、有毒的",
+    "example": "hardly poisonous：几乎无害",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0424",
+    "kind": "单词"
+  },
+  {
+    "english": "ponder",
+    "chinese": "仔细思考；沉思",
+    "example": "intellect ponders...",
+    "note": "ponder over/upon sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0425",
+    "kind": "单词"
+  },
+  {
+    "english": "populist urge",
+    "chinese": "民粹冲动/倾向",
+    "example": "democratic and populist urges",
+    "note": "urge 在此为“冲动、倾向”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0426",
+    "kind": "短语"
+  },
+  {
+    "english": "post",
+    "chinese": "发布；张贴",
+    "example": "a job is posted",
+    "note": "职位被发布",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0427",
+    "kind": "单词"
+  },
+  {
+    "english": "potential",
+    "chinese": "潜在的；可能的",
+    "example": "potential jobs/employers",
+    "note": "potential=有可能成为",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0428",
+    "kind": "单词"
+  },
+  {
+    "english": "pour fumes into",
+    "chinese": "向……排放烟气",
+    "example": "pouring fumes into the air",
+    "note": "fume=烟气",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0429",
+    "kind": "短语"
+  },
+  {
+    "english": "powerfully expressive",
+    "chinese": "极富表现力的",
+    "example": "can be powerfully expressive",
+    "note": "expressive=有表现力的",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0430",
+    "kind": "短语"
+  },
+  {
+    "english": "practical",
+    "chinese": "实际的；实用的",
+    "example": "practical is more important than intellectual",
+    "note": "practical vs intellectual",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0431",
+    "kind": "单词"
+  },
+  {
+    "english": "precede",
+    "chinese": "先于；在……之前发生",
+    "example": "slowdown precedes a boom",
+    "note": "precede ≠ proceed",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0432",
+    "kind": "单词"
+  },
+  {
+    "english": "precious embers",
+    "chinese": "珍贵的余火；珍贵火种",
+    "example": "the precious embers of medical progress",
+    "note": "ember=余烬，文中是比喻“医学进步的火种”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0433",
+    "kind": "短语"
+  },
+  {
+    "english": "predict",
+    "chinese": "预测",
+    "example": "a study predicts that...",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0434",
+    "kind": "单词"
+  },
+  {
+    "english": "predominantly",
+    "chinese": "主要地；占主导地",
+    "example": "predominantly fed by...",
+    "note": "≈ mainly",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0435",
+    "kind": "单词"
+  },
+  {
+    "english": "preface",
+    "chinese": "序言；前言",
+    "example": "in the preface to the report",
+    "note": "preface to",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0436",
+    "kind": "单词"
+  },
+  {
+    "english": "preference",
+    "chinese": "偏好",
+    "example": "preference for cucumbers",
+    "note": "prefer v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0437",
+    "kind": "单词"
+  },
+  {
+    "english": "prefrontal cortex",
+    "chinese": "前额叶皮层",
+    "example": "the prefrontal cortex",
+    "note": "与理性、推理相关",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0438",
+    "kind": "短语"
+  },
+  {
+    "english": "presence",
+    "chinese": "在场；存在",
+    "example": "in the presence of ...",
+    "note": "固定搭配",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0439",
+    "kind": "单词"
+  },
+  {
+    "english": "preserve",
+    "chinese": "保持；维护",
+    "example": "not the preserve of people alone",
+    "note": "preserve n. 可指“专属领域”；preserve sth",
+    "source": "09-21 公平/气候/嗅觉；09-20 反智/经济放缓",
+    "id": "v0440",
+    "kind": "单词"
+  },
+  {
+    "english": "press for",
+    "chinese": "强烈要求；敦促",
+    "example": "press for more research",
+    "note": "press for sth",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0441",
+    "kind": "短语"
+  },
+  {
+    "english": "press forward on",
+    "chinese": "继续推进",
+    "example": "press forward on deeper research",
+    "note": "≈ push ahead with",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0442",
+    "kind": "短语"
+  },
+  {
+    "english": "pressing",
+    "chinese": "紧迫的；迫切的",
+    "example": "a pressing problem",
+    "note": "pressing issue",
+    "source": "Day5 铁路/医疗",
+    "id": "v0443",
+    "kind": "单词"
+  },
+  {
+    "english": "private industry",
+    "chinese": "私营产业",
+    "example": "incentives for private industry",
+    "note": "industry 不可数时指产业",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0444",
+    "kind": "短语"
+  },
+  {
+    "english": "privilege",
+    "chinese": "特权；特殊优势",
+    "example": "a form of power or privilege",
+    "note": "privileged adj.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0445",
+    "kind": "单词"
+  },
+  {
+    "english": "proclaim",
+    "chinese": "公开宣布；宣称",
+    "example": "proclaim their hostility",
+    "note": "比 announce 更正式",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0446",
+    "kind": "单词"
+  },
+  {
+    "english": "professional help",
+    "chinese": "专业帮助",
+    "example": "",
+    "note": "seek professional help",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0447",
+    "kind": "短语"
+  },
+  {
+    "english": "proficiency",
+    "chinese": "熟练；精通",
+    "example": "proficiency in English/computing",
+    "note": "强调熟练程度；常与 in 搭配。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0448",
+    "kind": "单词"
+  },
+  {
+    "english": "proficient in",
+    "chinese": "熟练掌握",
+    "example": "proficient in English",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0449",
+    "kind": "短语"
+  },
+  {
+    "english": "progress / progression",
+    "chinese": "进展 / 渐进过程",
+    "example": "progression toward happier dreams",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0450",
+    "kind": "短语"
+  },
+  {
+    "english": "progression toward",
+    "chinese": "朝……逐步发展",
+    "example": "a progression toward happier ones",
+    "note": "progression toward sth",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0451",
+    "kind": "短语"
+  },
+  {
+    "english": "proper",
+    "chinese": "得体的；规范的",
+    "example": "do not talk proper",
+    "note": "此处指规范标准",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0452",
+    "kind": "单词"
+  },
+  {
+    "english": "prospect",
+    "chinese": "前景；可能性",
+    "example": "long-term prospects",
+    "note": "prospects for growth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0453",
+    "kind": "单词"
+  },
+  {
+    "english": "protector / judge / critic / guide",
+    "chinese": "保护者 / 裁判 / 批评者 / 指南",
+    "example": "science as a guide",
+    "note": "注意语境功能",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0454",
+    "kind": "短语"
+  },
+  {
+    "english": "prudent",
+    "chinese": "谨慎的；审慎的",
+    "example": "a prudent people",
+    "note": "prudence n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0455",
+    "kind": "单词"
+  },
+  {
+    "english": "prudent planning",
+    "chinese": "审慎规划",
+    "example": "prudent planning hinders progress",
+    "note": "prudent≠slow",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0456",
+    "kind": "短语"
+  },
+  {
+    "english": "public attitudes",
+    "chinese": "公众态度",
+    "example": "changes in public attitudes",
+    "note": "attitude toward",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0457",
+    "kind": "短语"
+  },
+  {
+    "english": "public funding",
+    "chinese": "公共财政资助；政府资金",
+    "example": "depend on public funding",
+    "note": "funding 是不可数名词。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0458",
+    "kind": "短语"
+  },
+  {
+    "english": "pull out",
+    "chinese": "撤出；退出；拔出",
+    "example": "pull out of an operation/market",
+    "note": "阅读里常见“撤出”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0459",
+    "kind": "短语"
+  },
+  {
+    "english": "purchasing power",
+    "chinese": "购买力",
+    "example": "enhance purchasing power",
+    "note": "经济学高频",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0460",
+    "kind": "短语"
+  },
+  {
+    "english": "pursue knowledge",
+    "chinese": "追求知识",
+    "example": "pursue knowledge for the sake of knowledge",
+    "note": "pursue=追求；后接名词",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0461",
+    "kind": "短语"
+  },
+  {
+    "english": "put / interpret / assume / make",
+    "chinese": "as sb puts it=正如某人所说；interpret=解释；assume=假设；make=使/制作",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0462",
+    "kind": "短语"
+  },
+  {
+    "english": "put pen to paper",
+    "chinese": "动笔写作",
+    "example": "when they put pen to paper",
+    "note": "固定短语",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0463",
+    "kind": "短语"
+  },
+  {
+    "english": "puts / interprets / assumes / makes",
+    "chinese": "as sb. puts it=正如某人所说；interpret=解释；assume=假设；make=制作/使。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0464",
+    "kind": "短语"
+  },
+  {
+    "english": "qualification",
+    "chinese": "资格；资历",
+    "example": "worse qualification",
+    "note": "job qualification",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0465",
+    "kind": "单词"
+  },
+  {
+    "english": "radical / conservative",
+    "chinese": "激进的 / 保守的",
+    "example": "选项对比",
+    "note": "政治/社会文体常见",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0466",
+    "kind": "短语"
+  },
+  {
+    "english": "radical education reforms",
+    "chinese": "激进的教育改革",
+    "example": "radical reforms",
+    "note": "radical=根本性的",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0467",
+    "kind": "短语"
+  },
+  {
+    "english": "radical reform",
+    "chinese": "激进改革",
+    "example": "proposes no radical education reforms",
+    "note": "radical=根本性的/激进的",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0468",
+    "kind": "短语"
+  },
+  {
+    "english": "raise the minimum wage",
+    "chinese": "提高最低工资",
+    "example": "raise + wage",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0469",
+    "kind": "短语"
+  },
+  {
+    "english": "random by-product",
+    "chinese": "随机副产品",
+    "example": "random by-products",
+    "note": "by-product of",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0470",
+    "kind": "短语"
+  },
+  {
+    "english": "random outcome",
+    "chinese": "随机结果",
+    "example": "",
+    "note": "outcome of neural repairs",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0471",
+    "kind": "短语"
+  },
+  {
+    "english": "range",
+    "chinese": "范围；区间",
+    "example": "$4m to $10m range",
+    "note": "in the range of",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0472",
+    "kind": "单词"
+  },
+  {
+    "english": "range / differ / change / cover",
+    "chinese": "range from...to... 表范围；differ 强调差异；change 普通变化；cover 可指覆盖范围。",
+    "example": "",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0473",
+    "kind": "短语"
+  },
+  {
+    "english": "range from A to B",
+    "chinese": "范围从 A 到 B",
+    "example": "固定搭配",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0474",
+    "kind": "短语"
+  },
+  {
+    "english": "rarely",
+    "chinese": "很少；罕有地",
+    "example": "rarely do sth; rarely seen",
+    "note": "频率副词，和 barely 不同：rarely=次数少，barely=程度低/几乎不。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0475",
+    "kind": "单词"
+  },
+  {
+    "english": "rate increase",
+    "chinese": "费率/运价上涨",
+    "example": "huge rate increases",
+    "note": "increase 作名词",
+    "source": "Day5 铁路/医疗",
+    "id": "v0476",
+    "kind": "短语"
+  },
+  {
+    "english": "rate relief",
+    "chinese": "运价减免/缓解",
+    "example": "appeal for rate relief",
+    "note": "railway rate 语境",
+    "source": "Day5 铁路/医疗",
+    "id": "v0477",
+    "kind": "短语"
+  },
+  {
+    "english": "reach such proportions that…",
+    "chinese": "达到如此规模，以至于……",
+    "example": "proportion 在这里指“规模/程度”，不是只表示“比例”",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0478",
+    "kind": "短语"
+  },
+  {
+    "english": "real",
+    "chinese": "真正的；实际存在的",
+    "example": "a real staff of 20",
+    "note": "在文中强调“确实有/真实的”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0479",
+    "kind": "单词"
+  },
+  {
+    "english": "real estate",
+    "chinese": "房地产",
+    "example": "real-estate market",
+    "note": "estate 不等于 state",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0480",
+    "kind": "短语"
+  },
+  {
+    "english": "real-estate broker",
+    "chinese": "房地产经纪人",
+    "example": "a Bay Area real-estate broker",
+    "note": "broker 经纪人",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0481",
+    "kind": "短语"
+  },
+  {
+    "english": "reasonably",
+    "chinese": "合理地；适度地",
+    "example": "spend reasonably",
+    "note": "reasonable adj.；态度/程度副词",
+    "source": "Day5 铁路/医疗",
+    "id": "v0482",
+    "kind": "单词"
+  },
+  {
+    "english": "recitation room",
+    "chinese": "背诵/课堂教室",
+    "example": "college recitation rooms",
+    "note": "recitation=背诵、课堂问答",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0483",
+    "kind": "短语"
+  },
+  {
+    "english": "recruit",
+    "chinese": "招募；吸收",
+    "example": "recruit supporters to a cause",
+    "note": "recruit sb to/for sth。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0484",
+    "kind": "单词"
+  },
+  {
+    "english": "recurring",
+    "chinese": "反复发生的",
+    "example": "a recurring bad dream",
+    "note": "recur v.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0485",
+    "kind": "单词"
+  },
+  {
+    "english": "red-hot economy",
+    "chinese": "过热/极为火热的经济",
+    "example": "red-hot economy is cooling",
+    "note": "red-hot=炙手可热/极热",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0486",
+    "kind": "短语"
+  },
+  {
+    "english": "refuse",
+    "chinese": "拒绝",
+    "example": "refused to accept the slice",
+    "note": "refuse to do",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0487",
+    "kind": "单词"
+  },
+  {
+    "english": "regard ... as",
+    "chinese": "把……视为……",
+    "example": "be regarded as all too human",
+    "note": "固定搭配",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0488",
+    "kind": "短语"
+  },
+  {
+    "english": "regardless of",
+    "chinese": "不论；不管",
+    "example": "regardless of class or background",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0489",
+    "kind": "短语"
+  },
+  {
+    "english": "reject",
+    "chinese": "拒绝；排斥",
+    "example": "reject the life of the mind",
+    "note": "reject + n.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0490",
+    "kind": "单词"
+  },
+  {
+    "english": "relation of dreams to emotions",
+    "chinese": "梦与情绪的关系",
+    "example": "",
+    "note": "relation of A to B",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0491",
+    "kind": "短语"
+  },
+  {
+    "english": "relatively quiet",
+    "chinese": "相对安静/不活跃",
+    "example": "relatively quiet",
+    "note": "relatively=相对地",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0492",
+    "kind": "短语"
+  },
+  {
+    "english": "reliable",
+    "chinese": "可靠的",
+    "example": "reliable data",
+    "note": "reliability",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0493",
+    "kind": "单词"
+  },
+  {
+    "english": "reluctant",
+    "chinese": "不情愿的",
+    "example": "the second was reluctant",
+    "note": "reluctance n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0494",
+    "kind": "单词"
+  },
+  {
+    "english": "reluctantly",
+    "chinese": "不情愿地",
+    "example": "reluctantly admire intellect",
+    "note": "reluctant adj.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0495",
+    "kind": "单词"
+  },
+  {
+    "english": "REM",
+    "chinese": "快速眼动睡眠",
+    "example": "active during REM sleep",
+    "note": "rapid eye movement",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0496",
+    "kind": "单词"
+  },
+  {
+    "english": "remain immune to",
+    "chinese": "不受……影响；对……免疫",
+    "example": "remain immune to the nation’s assimilative power",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0497",
+    "kind": "短语"
+  },
+  {
+    "english": "remedy",
+    "chinese": "补救办法；治疗方法",
+    "example": "a single remedy",
+    "note": "remedy for sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0498",
+    "kind": "单词"
+  },
+  {
+    "english": "reminder",
+    "chinese": "提醒；提示物",
+    "example": "send a reminder",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0499",
+    "kind": "单词"
+  },
+  {
+    "english": "remodel",
+    "chinese": "改造；重新塑造",
+    "example": "remodel common practices",
+    "note": "re- + model。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0500",
+    "kind": "单词"
+  },
+  {
+    "english": "remote",
+    "chinese": "偏远的",
+    "example": "remote villages",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0501",
+    "kind": "单词"
+  },
+  {
+    "english": "represent",
+    "chinese": "代表；体现；意味着",
+    "example": "intellect represents a form of power",
+    "note": "represent = stand for",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0502",
+    "kind": "单词"
+  },
+  {
+    "english": "resentment",
+    "chinese": "怨恨；不满",
+    "example": "induce resentment",
+    "note": "resent v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0503",
+    "kind": "单词"
+  },
+  {
+    "english": "reserved consent",
+    "chinese": "有保留的同意",
+    "example": "",
+    "note": "态度题常见“不是完全支持”",
+    "source": "Day5 铁路/医疗",
+    "id": "v0504",
+    "kind": "短语"
+  },
+  {
+    "english": "respectively",
+    "chinese": "分别地；各自地",
+    "example": "A and B are X and Y respectively",
+    "note": "顺序一一对应",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0505",
+    "kind": "单词"
+  },
+  {
+    "english": "respectively / separately",
+    "chinese": "respectively 强调两组对象按顺序一一对应；separately 只是“分别地”",
+    "example": "",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0506",
+    "kind": "短语"
+  },
+  {
+    "english": "respond forcefully to",
+    "chinese": "强有力地回应",
+    "example": "respond forcefully to criticism/advocates",
+    "note": "forcefully=有力地、强硬地。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0507",
+    "kind": "短语"
+  },
+  {
+    "english": "restraint",
+    "chinese": "限制；约束",
+    "example": "unnatural restraints on children",
+    "note": "restrain v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0508",
+    "kind": "单词"
+  },
+  {
+    "english": "reveal",
+    "chinese": "揭示",
+    "example": "reveal the truth",
+    "note": "revelation n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0509",
+    "kind": "单词"
+  },
+  {
+    "english": "revenue",
+    "chinese": "收入；营业收入",
+    "example": "24 percent of their revenue",
+    "note": "企业语境高频",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0510",
+    "kind": "单词"
+  },
+  {
+    "english": "revive",
+    "chinese": "使复兴；使恢复",
+    "example": "revive spying as a profession",
+    "note": "revive=重新使有活力。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0511",
+    "kind": "单词"
+  },
+  {
+    "english": "rewarding",
+    "chinese": "有回报的、值得的",
+    "example": "",
+    "note": "rewarding experience",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0512",
+    "kind": "单词"
+  },
+  {
+    "english": "rid ... of ...",
+    "chinese": "使……摆脱……",
+    "example": "",
+    "note": "ridding oneself of bad dreams",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0513",
+    "kind": "短语"
+  },
+  {
+    "english": "rigorous",
+    "chinese": "严格的；严谨的",
+    "example": "rigorous book learning",
+    "note": "rigorous training/research",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0514",
+    "kind": "单词"
+  },
+  {
+    "english": "scientific",
+    "chinese": "科学的",
+    "example": "scientific treatment",
+    "note": "science/scientific",
+    "source": "Day5 铁路/医疗",
+    "id": "v0515",
+    "kind": "单词"
+  },
+  {
+    "english": "searching / strolling / crowding / wandering",
+    "chinese": "search=寻找；stroll=悠闲散步；crowd=拥挤；wander=无目的游荡",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0516",
+    "kind": "短语"
+  },
+  {
+    "english": "second to",
+    "chinese": "次于；仅次于",
+    "example": "second to intelligence",
+    "note": "second to none=首屈一指",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0517",
+    "kind": "短语"
+  },
+  {
+    "english": "second-rate",
+    "chinese": "二流的；次等的",
+    "example": "a second-rate country",
+    "note": "first-rate=一流的",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0518",
+    "kind": "短语"
+  },
+  {
+    "english": "seek help from",
+    "chinese": "向……寻求帮助",
+    "example": "seek help from a therapist",
+    "note": "seek help/advice",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0519",
+    "kind": "短语"
+  },
+  {
+    "english": "seem to",
+    "chinese": "似乎",
+    "example": "seems to be that...",
+    "note": "seem to do",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0520",
+    "kind": "短语"
+  },
+  {
+    "english": "seething",
+    "chinese": "强烈翻腾的、暗涌的",
+    "example": "seething anger",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0521",
+    "kind": "单词"
+  },
+  {
+    "english": "sense",
+    "chinese": "感知；感觉",
+    "example": "cells which sense smells",
+    "note": "sense v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0522",
+    "kind": "单词"
+  },
+  {
+    "english": "separate / adjoining chambers",
+    "chinese": "分开的 / 相邻的隔间",
+    "example": "placed in separate adjoining chambers",
+    "note": "adjoining=毗邻的",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0523",
+    "kind": "短语"
+  },
+  {
+    "english": "serve as",
+    "chinese": "充当；作为",
+    "example": "science can serve as a guide",
+    "note": "serve as + 身份/作用",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0524",
+    "kind": "短语"
+  },
+  {
+    "english": "shelter",
+    "chinese": "收容所；庇护",
+    "example": "比 lodging/dwelling/house 更贴合无家可归者语境",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0525",
+    "kind": "单词"
+  },
+  {
+    "english": "shots",
+    "chinese": "注射；预防针",
+    "example": "a pet's shots",
+    "note": "口语中 shot 常=一针/疫苗注射。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0526",
+    "kind": "单词"
+  },
+  {
+    "english": "show up",
+    "chinese": "出现；显现",
+    "example": "",
+    "note": "show up in dreams",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0527",
+    "kind": "短语"
+  },
+  {
+    "english": "shrink",
+    "chinese": "缩小；减少",
+    "example": "a shrinking group",
+    "note": "shrink-shrank-shrunk",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0528",
+    "kind": "单词"
+  },
+  {
+    "english": "shrink / shrinking",
+    "chinese": "缩小；萎缩",
+    "example": "shrinking market",
+    "note": "反义 expand",
+    "source": "Day5 铁路/医疗",
+    "id": "v0529",
+    "kind": "短语"
+  },
+  {
+    "english": "shut up in",
+    "chinese": "被关在；困在",
+    "example": "shut up in schools and recitation rooms",
+    "note": "注意不是“闭嘴”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0530",
+    "kind": "短语"
+  },
+  {
+    "english": "sign up for",
+    "chinese": "注册；报名参加",
+    "example": "sign up for a service",
+    "note": "常考动词短语",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0531",
+    "kind": "短语"
+  },
+  {
+    "english": "sign up for / apply for",
+    "chinese": "sign up for=报名/注册服务；apply for=申请职位/项目",
+    "example": "",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0532",
+    "kind": "短语"
+  },
+  {
+    "english": "signs of recovery",
+    "chinese": "复苏迹象",
+    "example": "show signs of recovery",
+    "note": "高频经济短语",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0533",
+    "kind": "短语"
+  },
+  {
+    "english": "silver lining",
+    "chinese": "困境中的一线希望",
+    "example": "see silver linings",
+    "note": "every cloud has a silver lining",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0534",
+    "kind": "短语"
+  },
+  {
+    "english": "similar to",
+    "chinese": "与……相似",
+    "example": "be similar to",
+    "note": "similarity",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0535",
+    "kind": "短语"
+  },
+  {
+    "english": "slacking",
+    "chinese": "偷懒；懈怠",
+    "example": "a reputation for slacking",
+    "note": "slack v./adj.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0536",
+    "kind": "单词"
+  },
+  {
+    "english": "slight contempt",
+    "chinese": "轻微的轻蔑",
+    "example": "",
+    "note": "contempt=轻视",
+    "source": "Day5 铁路/医疗",
+    "id": "v0537",
+    "kind": "短语"
+  },
+  {
+    "english": "small wonder",
+    "chinese": "难怪；不足为奇",
+    "example": "small wonder that...",
+    "note": "≈ no wonder",
+    "source": "Day5 铁路/医疗",
+    "id": "v0538",
+    "kind": "短语"
+  },
+  {
+    "english": "smell of elitism",
+    "chinese": "带有精英主义气息",
+    "example": "anything that smells of elitism",
+    "note": "smell of 可比喻“有……味道/迹象”",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0539",
+    "kind": "短语"
+  },
+  {
+    "english": "smell receptor",
+    "chinese": "嗅觉受体",
+    "example": "smell receptors in the nose",
+    "note": "receptor=受体",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0540",
+    "kind": "短语"
+  },
+  {
+    "english": "So / Since / As / Thus",
+    "chinese": "So/Thus=结果；Since/As=原因或时间，需结合句法判断",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0541",
+    "kind": "短语"
+  },
+  {
+    "english": "spontaneity",
+    "chinese": "自发性；自然流露",
+    "example": "spontaneity over craft",
+    "note": "spontaneous adj.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0542",
+    "kind": "单词"
+  },
+  {
+    "english": "spooks",
+    "chinese": "间谍；特工（非正式）",
+    "example": "the spooks",
+    "note": "口语/新闻语体，常指情报人员。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0543",
+    "kind": "单词"
+  },
+  {
+    "english": "spymaster",
+    "chinese": "间谍头目；情报主管",
+    "example": "an American spymaster",
+    "note": "master 在这里不是“精通者”，而是负责人/掌控者。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0544",
+    "kind": "单词"
+  },
+  {
+    "english": "stable",
+    "chinese": "稳定的",
+    "example": "cooperation remains stable",
+    "note": "stability n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0545",
+    "kind": "单词"
+  },
+  {
+    "english": "staff a booth",
+    "chinese": "在摊位配备/担任工作人员",
+    "example": "a woman staffing an animal-rights booth",
+    "note": "staff 可作动词：为……配备人员。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0546",
+    "kind": "短语"
+  },
+  {
+    "english": "stakeholder",
+    "chinese": "利益相关者",
+    "example": "ultimate stakeholders are patients",
+    "note": "商业/公共政策高频词。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0547",
+    "kind": "单词"
+  },
+  {
+    "english": "statement",
+    "chinese": "声明；陈述",
+    "example": "make a statement",
+    "note": "写作/阅读高频。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0548",
+    "kind": "单词"
+  },
+  {
+    "english": "stay with sb all day",
+    "chinese": "整天持续影响某人",
+    "example": "those feelings can stay with us all day",
+    "note": "stay with 有“持续影响”义",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0549",
+    "kind": "短语"
+  },
+  {
+    "english": "steward",
+    "chinese": "管理者；守护者",
+    "example": "responsible stewards of the planet",
+    "note": "stewardship n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0550",
+    "kind": "单词"
+  },
+  {
+    "english": "stick to",
+    "chinese": "粘附在；坚持",
+    "example": "smells stick to surfaces",
+    "note": "另有“坚持”义",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0551",
+    "kind": "短语"
+  },
+  {
+    "english": "stimulus / stimuli",
+    "chinese": "刺激；刺激物",
+    "example": "external stimuli",
+    "note": "复数 stimuli",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0552",
+    "kind": "短语"
+  },
+  {
+    "english": "stock exchange",
+    "chinese": "证券交易所",
+    "example": "on the stock exchange",
+    "note": "exchange n.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0553",
+    "kind": "短语"
+  },
+  {
+    "english": "strictly necessary",
+    "chinese": "严格来说必要的",
+    "example": "is not strictly necessary",
+    "note": "strictly=严格意义上",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0554",
+    "kind": "短语"
+  },
+  {
+    "english": "stumble across",
+    "chinese": "偶然发现；无意中碰到",
+    "example": "stumble across a website/opportunity",
+    "note": "≈ come across",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0555",
+    "kind": "短语"
+  },
+  {
+    "english": "stumble across / come across",
+    "chinese": "都可表示“偶然遇到/发现”；stumble across 更有“无意中撞见”的色彩",
+    "example": "",
+    "note": "",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0556",
+    "kind": "短语"
+  },
+  {
+    "english": "substantial",
+    "chinese": "大量的；重大的",
+    "example": "substantial cost reductions",
+    "note": "比 big 更正式",
+    "source": "Day5 铁路/医疗",
+    "id": "v0557",
+    "kind": "单词"
+  },
+  {
+    "english": "suburban",
+    "chinese": "郊区的",
+    "example": "suburban Cleveland",
+    "note": "suburb n.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0558",
+    "kind": "单词"
+  },
+  {
+    "english": "such as",
+    "chinese": "例如",
+    "example": "such as smoke",
+    "note": "举例",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0559",
+    "kind": "短语"
+  },
+  {
+    "english": "suitable",
+    "chinese": "合适的",
+    "example": "suitable for",
+    "note": "suit v.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0560",
+    "kind": "单词"
+  },
+  {
+    "english": "supervision / manipulation / regulation / coordination",
+    "chinese": "supervision=监督；manipulation=操纵；regulation=规制；coordination=协调。",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0561",
+    "kind": "短语"
+  },
+  {
+    "english": "supporter of smoking",
+    "chinese": "支持吸烟的人",
+    "example": "supporters of smoking",
+    "note": "supporter of",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0562",
+    "kind": "短语"
+  },
+  {
+    "english": "suppress",
+    "chinese": "压制；抑制",
+    "example": "suppressing native intelligence",
+    "note": "suppress growth/voice",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0563",
+    "kind": "单词"
+  },
+  {
+    "english": "surgical",
+    "chinese": "外科手术的",
+    "example": "surgical procedure",
+    "note": "surgery n.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0564",
+    "kind": "单词"
+  },
+  {
+    "english": "suspect that",
+    "chinese": "猜想；认为可能",
+    "example": "researchers suspect that...",
+    "note": "语气弱于 believe",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0565",
+    "kind": "短语"
+  },
+  {
+    "english": "suspend",
+    "chinese": "暂停；中止",
+    "example": "logic is suspended",
+    "note": "suspend judgment / suspend operation",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0566",
+    "kind": "单词"
+  },
+  {
+    "english": "suspiciously",
+    "chinese": "可疑地；令人怀疑地",
+    "example": "suspiciously large",
+    "note": "语气副词",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0567",
+    "kind": "单词"
+  },
+  {
+    "english": "sustained boom",
+    "chinese": "持续繁荣",
+    "example": "a sustained boom",
+    "note": "sustain v.",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0568",
+    "kind": "短语"
+  },
+  {
+    "english": "talk nonsense",
+    "chinese": "胡说八道",
+    "example": "talking nonsense",
+    "note": "nonsense 不可数",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0569",
+    "kind": "短语"
+  },
+  {
+    "english": "temper spending",
+    "chinese": "控制/缓和消费",
+    "example": "shoppers temper their spending",
+    "note": "temper v.=使缓和",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0570",
+    "kind": "短语"
+  },
+  {
+    "english": "temperament",
+    "chinese": "性情；气质",
+    "example": "appearance and temperament",
+    "note": "temperamental adj.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0571",
+    "kind": "单词"
+  },
+  {
+    "english": "temporary / permanent",
+    "chinese": "临时的 / 永久的",
+    "example": "paper plates vs china 选项",
+    "note": "反义组",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0572",
+    "kind": "短语"
+  },
+  {
+    "english": "the bulk of",
+    "chinese": "大部分",
+    "example": "the bulk of each day",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0573",
+    "kind": "短语"
+  },
+  {
+    "english": "the explanation for",
+    "chinese": "……的解释",
+    "example": "the explanation for insensitivity",
+    "note": "explanation for",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0574",
+    "kind": "短语"
+  },
+  {
+    "english": "the figure may vary",
+    "chinese": "数字可能变化",
+    "example": "figure=数字；vary=变化",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0575",
+    "kind": "短语"
+  },
+  {
+    "english": "the latter / the former",
+    "chinese": "后者 / 前者",
+    "example": "a lesson from the latter is applicable to the former",
+    "note": "阅读指代高频",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0576",
+    "kind": "短语"
+  },
+  {
+    "english": "the life of the mind",
+    "chinese": "精神生活；思想生活",
+    "example": "reject the life of the mind",
+    "note": "抽象表达，阅读常见",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0577",
+    "kind": "短语"
+  },
+  {
+    "english": "the rest of us",
+    "chinese": "我们其余的人",
+    "example": "For the rest of us...",
+    "note": "固定表达",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0578",
+    "kind": "短语"
+  },
+  {
+    "english": "thermostat",
+    "chinese": "恒温调节器；调节机制",
+    "example": "the mind's emotional thermostat",
+    "note": "文中为比喻",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0579",
+    "kind": "单词"
+  },
+  {
+    "english": "third-party payer",
+    "chinese": "第三方付费者",
+    "example": "costs paid by third-party payers",
+    "note": "保险/政府等",
+    "source": "Day5 铁路/医疗",
+    "id": "v0580",
+    "kind": "短语"
+  },
+  {
+    "english": "though / although",
+    "chinese": "虽然；不过",
+    "example": "though 更灵活，可句末",
+    "note": "让步",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0581",
+    "kind": "短语"
+  },
+  {
+    "english": "threat",
+    "chinese": "威胁",
+    "example": "the threat of competition",
+    "note": "threaten v.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0582",
+    "kind": "单词"
+  },
+  {
+    "english": "tighten the belt",
+    "chinese": "勒紧裤腰带；节衣缩食",
+    "example": "tighten the belt",
+    "note": "与 belt-tightening 同源",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0583",
+    "kind": "短语"
+  },
+  {
+    "english": "toast",
+    "chinese": "为……祝酒",
+    "example": "worth toasting",
+    "note": "toast to sth",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0584",
+    "kind": "单词"
+  },
+  {
+    "english": "token",
+    "chinese": "代币；象征物",
+    "example": "exchange a token for food",
+    "note": "实验语境常指可交换代币",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0585",
+    "kind": "单词"
+  },
+  {
+    "english": "trace the roots of",
+    "chinese": "追溯……的根源",
+    "example": "trace the roots of anti-intellectualism",
+    "note": "与 get to the roots of 近义",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0586",
+    "kind": "短语"
+  },
+  {
+    "english": "transcendentalist",
+    "chinese": "超验主义者",
+    "example": "Transcendentalist philosophers",
+    "note": "哲学文化背景词",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0587",
+    "kind": "单词"
+  },
+  {
+    "english": "triumph",
+    "chinese": "胜利；成功；巨大成就",
+    "example": "the triumph of 1960s counter-culture",
+    "note": "triumph over；既可名词也可动词。",
+    "source": "09-22 梦境/正式英语；Day4 情报/动物实验",
+    "id": "v0588",
+    "kind": "单词"
+  },
+  {
+    "english": "turbulent",
+    "chinese": "动荡的、混乱的",
+    "example": "America’s turbulent past",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0589",
+    "kind": "单词"
+  },
+  {
+    "english": "turn around / turn over / turn on / turn up",
+    "chinese": "turn around=扭转、好转；turn over=翻转/移交；turn on=打开；turn up=出现/调高",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0590",
+    "kind": "短语"
+  },
+  {
+    "english": "turn one’s life around",
+    "chinese": "使生活好转、扭转人生",
+    "example": "turn around = 好转、扭转",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0591",
+    "kind": "短语"
+  },
+  {
+    "english": "unacceptable",
+    "chinese": "不可接受的",
+    "example": "inhuman and unacceptable",
+    "note": "accept → acceptable → unacceptable。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0592",
+    "kind": "单词"
+  },
+  {
+    "english": "unaffordable",
+    "chinese": "负担不起的",
+    "example": "medical costs become unaffordable",
+    "note": "afford→affordable→unaffordable",
+    "source": "Day5 铁路/医疗",
+    "id": "v0593",
+    "kind": "单词"
+  },
+  {
+    "english": "unanswered question",
+    "chinese": "尚未解答的问题",
+    "example": "an unanswered question",
+    "note": "阅读总结常见",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0594",
+    "kind": "短语"
+  },
+  {
+    "english": "uncertain",
+    "chinese": "不确定的",
+    "example": "the science uncertain",
+    "note": "uncertainty n.",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0595",
+    "kind": "单词"
+  },
+  {
+    "english": "unconscious",
+    "chinese": "无意识的",
+    "example": "unconscious desires and fears",
+    "note": "conscious 反义",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0596",
+    "kind": "单词"
+  },
+  {
+    "english": "unconscious / conscious",
+    "chinese": "无意识的 / 有意识的",
+    "example": "dreams under conscious control",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0597",
+    "kind": "短语"
+  },
+  {
+    "english": "underlie",
+    "chinese": "构成……的基础；潜藏在……下面",
+    "example": "underlies power",
+    "note": "过去式 underlay，过去分词 underlain",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0598",
+    "kind": "单词"
+  },
+  {
+    "english": "underrated",
+    "chinese": "被低估的",
+    "example": "an underrated tool",
+    "note": "underestimate v. 同义方向",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0599",
+    "kind": "单词"
+  },
+  {
+    "english": "undervalue",
+    "chinese": "低估；轻视",
+    "example": "undervaluing intellect",
+    "note": "反义 overvalue",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0600",
+    "kind": "单词"
+  },
+  {
+    "english": "uniformity",
+    "chinese": "一致、千篇一律",
+    "example": "democratizing uniformity",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0601",
+    "kind": "单词"
+  },
+  {
+    "english": "unimaginable",
+    "chinese": "难以想象的",
+    "example": "once unimaginable",
+    "note": "imagine→imaginable",
+    "source": "Day5 铁路/医疗",
+    "id": "v0602",
+    "kind": "单词"
+  },
+  {
+    "english": "unlikely",
+    "chinese": "不太可能的",
+    "example": "unlikely to appeal for relief",
+    "note": "likely/unlikely",
+    "source": "Day5 铁路/医疗",
+    "id": "v0603",
+    "kind": "单词"
+  },
+  {
+    "english": "unmistakable",
+    "chinese": "明显的；不容误认的",
+    "example": "the trend is unmistakable",
+    "note": "mistakable 反义",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0604",
+    "kind": "单词"
+  },
+  {
+    "english": "unprecedented",
+    "chinese": "前所未有的",
+    "example": "at unprecedented levels",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0605",
+    "kind": "单词"
+  },
+  {
+    "english": "upright",
+    "chinese": "直立的",
+    "example": "we stand upright",
+    "note": "upright posture",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0606",
+    "kind": "单词"
+  },
+  {
+    "english": "upsetting",
+    "chinese": "令人不安的",
+    "example": "what is upsetting about the dream",
+    "note": "upset v./adj.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0607",
+    "kind": "单词"
+  },
+  {
+    "english": "upsetting parallel",
+    "chinese": "令人不安的相似之处",
+    "example": "There are upsetting parallels today",
+    "note": "parallel n.=相似情况",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0608",
+    "kind": "短语"
+  },
+  {
+    "english": "upside",
+    "chinese": "有利的一面；上行空间",
+    "example": "see an upside",
+    "note": "与 downside 对照",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0609",
+    "kind": "单词"
+  },
+  {
+    "english": "vacuum up",
+    "chinese": "大量搜集；席卷式收集",
+    "example": "vacuum up data bits",
+    "note": "形象化：像吸尘器一样把信息吸走。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0610",
+    "kind": "短语"
+  },
+  {
+    "english": "vain",
+    "chinese": "徒劳的；自负的",
+    "example": "take a vain pride / vain attempt",
+    "note": "此处多为“虚荣/徒劳”视语境",
+    "source": "Day5 铁路/医疗",
+    "id": "v0611",
+    "kind": "单词"
+  },
+  {
+    "english": "valuable / invaluable",
+    "chinese": "有价值 / 极其宝贵",
+    "example": "invaluable ≠ valueless",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0612",
+    "kind": "短语"
+  },
+  {
+    "english": "vanish",
+    "chinese": "消失；突然不复存在",
+    "example": "pleasure can vanish",
+    "note": "≈ disappear",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0613",
+    "kind": "单词"
+  },
+  {
+    "english": "vast",
+    "chinese": "巨大的；广阔的",
+    "example": "vast consolidation",
+    "note": "语气强于 large",
+    "source": "Day5 铁路/医疗",
+    "id": "v0614",
+    "kind": "单词"
+  },
+  {
+    "english": "venture investment",
+    "chinese": "风险投资",
+    "example": "venture capital/investment",
+    "note": "venture=风险事业",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0615",
+    "kind": "短语"
+  },
+  {
+    "english": "visualize",
+    "chinese": "在脑中想象；使可视化",
+    "example": "visualize how you would like it to end",
+    "note": "visualization n.",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0616",
+    "kind": "单词"
+  },
+  {
+    "english": "vivid",
+    "chinese": "生动的；鲜明的",
+    "example": "vivid dreams",
+    "note": "vivid memory/image",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0617",
+    "kind": "单词"
+  },
+  {
+    "english": "vivid / vividness",
+    "chinese": "生动的 / 生动性",
+    "example": "vivid dreams",
+    "note": "",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0618",
+    "kind": "短语"
+  },
+  {
+    "english": "vulnerable to",
+    "chinese": "易受……伤害/影响",
+    "example": "vulnerable to exploitation and control",
+    "note": "高频搭配",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0619",
+    "kind": "短语"
+  },
+  {
+    "english": "wander / wandering",
+    "chinese": "游荡",
+    "example": "spend the day wandering the street",
+    "note": "",
+    "source": "09-24 移民/完形复盘",
+    "id": "v0620",
+    "kind": "短语"
+  },
+  {
+    "english": "wander the street",
+    "chinese": "在街头游荡",
+    "example": "wander 强调无目的地走",
+    "note": "",
+    "source": "09-23 移民/无家可归",
+    "id": "v0621",
+    "kind": "短语"
+  },
+  {
+    "english": "waste / wasted",
+    "chinese": "浪费；被浪费的",
+    "example": "medical resources are wasted",
+    "note": "wasteful adj.",
+    "source": "Day5 铁路/医疗",
+    "id": "v0622",
+    "kind": "短语"
+  },
+  {
+    "english": "weigh",
+    "chinese": "权衡；衡量",
+    "example": "weigh what they get",
+    "note": "不仅是“称重”",
+    "source": "09-21 公平/气候/嗅觉",
+    "id": "v0623",
+    "kind": "单词"
+  },
+  {
+    "english": "well regarded",
+    "chinese": "受到高度评价的",
+    "example": "the most well regarded",
+    "note": "≈ respected",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0624",
+    "kind": "短语"
+  },
+  {
+    "english": "well-meaning",
+    "chinese": "出于好意的；善意的",
+    "example": "well-meaning people",
+    "note": "常暗含“好心但未必做对”。",
+    "source": "Day4 情报/动物实验",
+    "id": "v0625",
+    "kind": "短语"
+  },
+  {
+    "english": "when / once / while / whereas",
+    "chinese": "while 可表示“虽然/当……时”或对比；whereas 强对比；once=一旦；when=时间。",
+    "example": "",
+    "note": "",
+    "source": "09-23 移民/无家可归；09-24 移民/完形复盘",
+    "id": "v0626",
+    "kind": "短语"
+  },
+  {
+    "english": "when it comes to",
+    "chinese": "说到；谈到",
+    "example": "when it comes to the slowing economy",
+    "note": "高频引入结构",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0627",
+    "kind": "短语"
+  },
+  {
+    "english": "within one's control",
+    "chinese": "在某人的控制范围内",
+    "example": "within our control",
+    "note": "反义：beyond one's control",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0628",
+    "kind": "短语"
+  },
+  {
+    "english": "word puzzle",
+    "chinese": "文字游戏；字谜",
+    "example": "word puzzles",
+    "note": "puzzle 也可作动词",
+    "source": "Day6 求职/字母偏见",
+    "id": "v0629",
+    "kind": "短语"
+  },
+  {
+    "english": "work through",
+    "chinese": "逐步处理并化解",
+    "example": "working through negative feelings",
+    "note": "心理语境高频",
+    "source": "09-22 梦境/正式英语",
+    "id": "v0630",
+    "kind": "短语"
+  },
+  {
+    "english": "worth doing",
+    "chinese": "值得做……",
+    "example": "worth toasting",
+    "note": "worth + V-ing，不接 to do",
+    "source": "09-20 反智/经济放缓",
+    "id": "v0631",
+    "kind": "短语"
+  }
+];
+const APP_KEY = 'worddeck_state_v1';
+const DEFAULTS = {settings:{dailyNew:200,dailyReview:300,order:'mix',autoSpeak:false,repeatWrong:true,autoNextRound:true,intervals:[1,2,4,7,14,30]},currentRound:1,wordState:{},customWords:[],history:{},session:null,version:1};
+let state=loadState(); let bankPage=120; let currentWord=null; let currentOptions=[]; let answered=false; let currentMode='mixed';
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function loadState(){try{const x=JSON.parse(localStorage.getItem(APP_KEY)||'null');return x?{...clone(DEFAULTS),...x,settings:{...DEFAULTS.settings,...(x.settings||{})}}:clone(DEFAULTS)}catch(e){return clone(DEFAULTS)}}
+function save(){localStorage.setItem(APP_KEY,JSON.stringify(state));}
+function allWords(){return [...INITIAL_WORDS,...state.customWords]}
+function ws(id){if(!state.wordState[id]) state.wordState[id]={stage:0,due:null,seen:0,correct:0,wrong:0,streak:0,lastSeen:null,completedRounds:0,starred:false,suspended:false,mistake:false}; return state.wordState[id]}
+function dateKey(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function addDays(key,n){const [y,m,d]=key.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+n);return dateKey(dt)}
+function activeWords(){return allWords().filter(w=>!ws(w.id).suspended)}
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffled(arr,seed){const a=[...arr],r=rng(hash(seed));for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function todayHist(){const k=dateKey(); if(!state.history[k]) state.history[k]={answered:0,correct:0,newDone:0,reviewDone:0}; return state.history[k]}
+function progressInfo(){const a=activeWords();const done=a.filter(w=>ws(w.id).completedRounds>=state.currentRound).length;return {done,total:a.length,pct:a.length?Math.round(done/a.length*100):0}}
+function dueWords(){const t=dateKey();return activeWords().filter(w=>ws(w.id).seen>0 && ws(w.id).due && ws(w.id).due<=t)}
+function newRoundWords(){return activeWords().filter(w=>ws(w.id).completedRounds<state.currentRound)}
+function masteredCount(){return activeWords().filter(w=>ws(w.id).stage>=4).length}
+function streakDays(){let n=0,d=new Date();for(let i=0;i<3650;i++){const k=dateKey(d);if(state.history[k]?.answered>0){n++;d.setDate(d.getDate()-1)}else if(i===0){d.setDate(d.getDate()-1)}else break}return n}
+function labelRound(){return `第 ${state.currentRound} 轮`}
+function escapeHtml(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2300)}
+function speak(text){if(!('speechSynthesis'in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g,', '));u.lang='en-US';u.rate=.88;speechSynthesis.speak(u)}
+
+function renderToday(){const p=progressInfo(),h=todayHist(),due=dueWords().length,nw=newRoundWords().length;document.getElementById('statTotal').textContent=activeWords().length;document.getElementById('statDue').textContent=due;document.getElementById('statRound').textContent=p.pct+'%';document.getElementById('statAccuracy').textContent=h.answered?Math.round(h.correct/h.answered*100)+'%':'—';document.getElementById('roundPill').textContent=labelRound();document.getElementById('heroTitle').textContent=labelRound()+'学习';document.getElementById('roundBar').style.width=p.pct+'%';document.getElementById('roundText').textContent=`${p.done} / ${p.total}`;document.getElementById('roundEta').textContent=p.total===p.done&&p.total?'本轮已完成':`剩余 ${p.total-p.done} 词`;document.getElementById('todayPlanCount').textContent=Math.min(due,state.settings.dailyReview)+Math.min(nw,state.settings.dailyNew)+' 词';document.getElementById('todayMistakeCount').textContent=activeWords().filter(w=>ws(w.id).mistake).length;document.getElementById('dailyNewQuick').value=String(state.settings.dailyNew);document.getElementById('dailyReviewQuick').value=String(state.settings.dailyReview);document.getElementById('orderQuick').value=state.settings.order}
+function updateQuick(){state.settings.dailyNew=+document.getElementById('dailyNewQuick').value;state.settings.dailyReview=+document.getElementById('dailyReviewQuick').value;state.settings.order=document.getElementById('orderQuick').value;save();renderToday()}
+
+function buildQueue(mode){const today=dateKey();let due=shuffled(dueWords(),today+'due').slice(0,state.settings.dailyReview);let fresh=shuffled(newRoundWords(),today+'round'+state.currentRound).slice(0,state.settings.dailyNew);let arr=[];if(mode==='review')arr=due;else if(mode==='new')arr=fresh;else{const map=new Map();[...due,...fresh].forEach(w=>map.set(w.id,w));arr=[...map.values()]; if(state.settings.order==='mix')arr=shuffled(arr,today+'mix'+state.currentRound)}return arr.map(w=>w.id)}
+function startSession(mode,explicitIds=null){let q=explicitIds||buildQueue(mode);if(!q.length){toast(mode==='review'?'今天没有到期复习':'当前没有可练习的词');return}state.session={queue:q,pos:0,startedAt:Date.now(),mode};currentMode=mode;save();openQuiz()}
+function openQuiz(){document.getElementById('quizShell').classList.add('open');showCurrent()}
+function closeQuiz(){document.getElementById('quizShell').classList.remove('open');currentWord=null;answered=false;state.session=null;save();renderAll()}
+function pickDistractors(word){const target=word.chinese;const phrase=(word.kind==='短语');const len=target.length;let pool=allWords().filter(w=>w.id!==word.id&&w.chinese&&w.chinese!==target);pool=shuffled(pool,word.id+String(Date.now())).sort((a,b)=>{const sa=Math.abs(a.chinese.length-len)+(a.kind===word.kind?0:3);const sb=Math.abs(b.chinese.length-len)+(b.kind===word.kind?0:3);return sa-sb});const out=[];const used=new Set([target]);for(const w of pool){if(!used.has(w.chinese)){out.push(w.chinese);used.add(w.chinese)}if(out.length===3)break}return out}
+function showCurrent(){answered=false;const s=state.session;if(!s||s.pos>=s.queue.length){finishSession();return}const id=s.queue[s.pos];currentWord=allWords().find(w=>w.id===id);if(!currentWord){s.pos++;showCurrent();return}currentOptions=shuffled([currentWord.chinese,...pickDistractors(currentWord)],currentWord.id+Date.now());document.getElementById('quizWord').textContent=currentWord.english;document.getElementById('quizSource').textContent=currentWord.source||'自定义';document.getElementById('quizKind').textContent=`${currentWord.kind||'词条'} · SRS ${ws(id).stage} · ${ws(id).seen?'复习':'首次学习'}`;document.getElementById('quizMeta').textContent=`${s.pos+1} / ${s.queue.length}`;document.getElementById('quizBar').style.width=Math.round(s.pos/s.queue.length*100)+'%';const o=document.getElementById('options');o.innerHTML='';currentOptions.forEach((x,i)=>{const b=document.createElement('button');b.className='option';b.dataset.value=x;b.innerHTML=`<span class="key">${i+1}</span><span>${escapeHtml(x)}</span>`;b.onclick=()=>answer(x,b);o.appendChild(b)});document.getElementById('feedback').className='feedback';document.getElementById('feedback').innerHTML='';document.getElementById('nextBtn').disabled=true;document.getElementById('dontKnowBtn').disabled=false;const st=ws(id);const sb=document.getElementById('starBtn');sb.classList.toggle('on',st.starred);sb.textContent=st.starred?'★ 已收藏':'☆ 收藏';if(state.settings.autoSpeak)speak(currentWord.english)}
+function detailHtml(w){let s='';if(w.example)s+=`<div><b>搭配/例句：</b>${escapeHtml(w.example)}</div>`;if(w.note)s+=`<div><b>记忆点：</b>${escapeHtml(w.note)}</div>`;s+=`<div><b>来源：</b>${escapeHtml(w.source||'自定义')}</div>`;return s}
+function answer(value,btn,forceWrong=false){if(answered)return;answered=true;const correct=!forceWrong&&value===currentWord.chinese;const id=currentWord.id,st=ws(id),h=todayHist(),today=dateKey();st.seen++;st.lastSeen=today;h.answered++;if(correct){st.correct++;st.streak++;h.correct++;const wasRoundDone=st.completedRounds>=state.currentRound;st.completedRounds=Math.max(st.completedRounds,state.currentRound);if(!wasRoundDone)h.newDone++;else h.reviewDone++;const intervals=state.settings.intervals?.length?state.settings.intervals:[1,2,4,7,14,30];st.stage=Math.min(st.stage+1,intervals.length);const idx=Math.max(0,Math.min(st.stage-1,intervals.length-1));st.due=addDays(today,intervals[idx]);}else{st.wrong++;st.streak=0;st.mistake=true;st.stage=Math.max(0,st.stage-1);st.due=today;if(state.settings.repeatWrong&&state.session){const insert=Math.min(state.session.pos+4,state.session.queue.length);state.session.queue.splice(insert,0,id)}}
+  [...document.querySelectorAll('.option')].forEach(b=>{b.disabled=true;if(b.dataset.value===currentWord.chinese)b.classList.add('correct');else if(b===btn&&!correct)b.classList.add('wrong');else b.classList.add('dim')});const fb=document.getElementById('feedback');fb.className='feedback show '+(correct?'good':'bad');fb.innerHTML=`<strong>${correct?'✓ 正确':'✗ 正确答案：'+escapeHtml(currentWord.chinese)}</strong><div class="detail">${detailHtml(currentWord)}</div>`;document.getElementById('nextBtn').disabled=false;document.getElementById('dontKnowBtn').disabled=true;save();maybeAdvanceRound()}
+function dontKnow(){if(answered)return;answer('__wrong__',null,true)}
+function nextCard(){if(!answered)return;state.session.pos++;save();showCurrent()}
+function finishSession(){document.getElementById('quizBar').style.width='100%';const s=state.session;const total=s?.queue?.length||0;state.session=null;save();document.getElementById('quizShell').classList.remove('open');toast(`本次完成 ${total} 张词卡`);renderAll()}
+function maybeAdvanceRound(){if(state.session&&state.session.pos<state.session.queue.length-1)return;const p=progressInfo();if(p.total>0&&p.done===p.total){if(state.settings.autoNextRound){state.currentRound++;toast(`🎉 第 ${state.currentRound-1} 轮完成，已进入第 ${state.currentRound} 轮`)}else toast(`🎉 第 ${state.currentRound} 轮全部完成`);save()}}
+
+function renderBank(){const words=allWords();const q=document.getElementById('bankSearch').value.trim().toLowerCase();const src=document.getElementById('bankSource').value;const status=document.getElementById('bankStatus').value;let list=words.filter(w=>{const st=ws(w.id);if(src!=='all'&&!w.source.includes(src))return false;if(status==='unseen'&&st.completedRounds>=state.currentRound)return false;if(status==='learned'&&!st.seen)return false;if(status==='starred'&&!st.starred)return false;if(status==='suspended'&&!st.suspended)return false;if(q&&!`${w.english} ${w.chinese} ${w.example||''} ${w.note||''}`.toLowerCase().includes(q))return false;return true});document.getElementById('bankCount').textContent=`共 ${list.length} 条`;const body=document.getElementById('bankBody');body.innerHTML='';list.slice(0,bankPage).forEach(w=>{const st=ws(w.id),tr=document.createElement('tr');tr.innerHTML=`<td><div class="eng">${escapeHtml(w.english)}</div><div class="sub">${w.kind||''}${w.example?' · '+escapeHtml(w.example):''}</div></td><td>${escapeHtml(w.chinese)}${w.note?`<div class="sub">${escapeHtml(w.note)}</div>`:''}</td><td><span class="tag">${escapeHtml(w.source||'自定义')}</span><span class="tag">SRS ${st.stage}</span>${st.completedRounds>=state.currentRound?'<span class="tag">本轮完成</span>':''}${st.suspended?'<span class="tag">暂停</span>':''}</td><td><div class="btnrow"><button class="btn small ghost" data-act="star">${st.starred?'★':'☆'}</button><button class="btn small ghost" data-act="suspend">${st.suspended?'恢复':'暂停'}</button>${w.custom?'<button class="btn small danger" data-act="delete">删除</button>':''}</div></td>`;tr.querySelectorAll('button').forEach(b=>b.onclick=()=>bankAction(w,b.dataset.act));body.appendChild(tr)});document.getElementById('loadMoreBank').style.display=list.length>bankPage?'inline-flex':'none'}
+function bankAction(w,act){const st=ws(w.id);if(act==='star')st.starred=!st.starred;if(act==='suspend')st.suspended=!st.suspended;if(act==='delete'&&w.custom&&confirm('删除这个自定义词条？')){state.customWords=state.customWords.filter(x=>x.id!==w.id);delete state.wordState[w.id]}save();renderAll()}
+function populateSources(){const s=document.getElementById('bankSource');const cur=s.value;const vals=[...new Set(allWords().flatMap(w=>(w.source||'自定义').split('；')))].sort();s.innerHTML='<option value="all">全部来源</option>'+vals.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');if([...s.options].some(o=>o.value===cur))s.value=cur}
+
+function renderMistakes(){const list=activeWords().filter(w=>ws(w.id).mistake).sort((a,b)=>ws(b.id).wrong-ws(a.id).wrong);const root=document.getElementById('mistakeList');if(!list.length){root.innerHTML='<div class="card empty">目前没有错题。</div>';return}root.innerHTML=list.map(w=>`<div class="card box"><div style="display:flex;justify-content:space-between;gap:12px"><div><div class="eng" style="font-size:20px">${escapeHtml(w.english)}</div><div style="margin-top:6px">${escapeHtml(w.chinese)}</div><div class="sub">错 ${ws(w.id).wrong} 次 · 对 ${ws(w.id).correct} 次 · SRS ${ws(w.id).stage}</div></div><div class="btnrow"><button class="btn small secondary" onclick="studyOne('${w.id}')">练习</button><button class="btn small ghost" onclick="clearMistake('${w.id}')">移出</button></div></div></div>`).join('')}
+window.studyOne=id=>startSession('mistake',[id]);window.clearMistake=id=>{ws(id).mistake=false;save();renderMistakes();renderToday()}
+function renderStats(){const a=activeWords();document.getElementById('sLearned').textContent=a.filter(w=>ws(w.id).correct>0).length;document.getElementById('sMastered').textContent=masteredCount();document.getElementById('sMistakes').textContent=a.filter(w=>ws(w.id).mistake).length;document.getElementById('sStreak').textContent=streakDays();const h=document.getElementById('history7');h.innerHTML='';for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=dateKey(d),x=state.history[k]||{answered:0,correct:0};const row=document.createElement('div');row.className='mini-item';row.innerHTML=`<span>${k.slice(5)}</span><b>${x.answered} 张 · ${x.answered?Math.round(x.correct/x.answered*100):0}%</b>`;h.appendChild(row)}const bins=[0,0,0,0,0,0,0];a.forEach(w=>bins[Math.min(ws(w.id).stage,6)]++);document.getElementById('stageStats').innerHTML=bins.map((n,i)=>`<div class="mini-item"><span>${i===0?'未建立记忆':'SRS '+i}</span><b>${n}</b></div>`).join('')}
+function renderSettings(){document.getElementById('currentRoundSetting').textContent=labelRound();document.getElementById('intervalsInput').value=state.settings.intervals.join(',');document.querySelectorAll('.toggle').forEach(b=>b.classList.toggle('on',!!state.settings[b.dataset.setting]))}
+function renderAll(){populateSources();renderToday();renderBank();renderMistakes();renderStats();renderSettings()}
+
+function switchTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='bank')renderBank();if(id==='mistakes')renderMistakes();if(id==='stats')renderStats();if(id==='settings')renderSettings();window.scrollTo({top:0,behavior:'smooth'})}
+function openModal(id){document.getElementById(id).classList.add('open')}function closeModal(id){document.getElementById(id).classList.remove('open')}
+function uid(){return 'u_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+function addWord(obj){const en=(obj.english||obj.word||'').trim(),zh=(obj.chinese||obj.meaning||obj['中文']||'').trim();if(!en||!zh)return false;const exists=allWords().some(w=>w.english.trim().toLowerCase()===en.toLowerCase());if(exists)return false;const id=uid();state.customWords.push({id,english:en,chinese:zh,example:(obj.example||obj.context||'').trim(),note:(obj.note||'').trim(),source:(obj.tags||obj.source||'自定义').trim()||'自定义',kind:/\s/.test(en)?'短语':'单词',custom:true});ws(id).completedRounds=Math.max(0,state.currentRound-1);return true}
+function parseCSVLine(line,delim){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===delim&&!q){out.push(cur.trim());cur=''}else cur+=c}out.push(cur.trim());return out}
+function parseImport(text,name=''){text=text.replace(/^\uFEFF/,'').trim();if(!text)return[];if(name.endsWith('.json')||text.startsWith('[')){const x=JSON.parse(text);return Array.isArray(x)?x:(x.words||[])}const first=text.split(/\r?\n/)[0];const delim=first.includes('\t')?'\t':first.includes('|')?'|':',';const rows=text.split(/\r?\n/).filter(Boolean).map(l=>parseCSVLine(l,delim));const h=rows[0].map(x=>x.toLowerCase());const hasHeader=h.some(x=>['english','word','英文','词汇','短语'].includes(x))&&h.some(x=>['chinese','meaning','中文','释义','核心义'].includes(x));let start=0,idx={en:0,zh:1,ex:2,note:3,tags:4};if(hasHeader){start=1;const find=(arr,d)=>{const i=h.findIndex(x=>arr.includes(x));return i>=0?i:d};idx={en:find(['english','word','英文','词汇','短语'],0),zh:find(['chinese','meaning','中文','释义','核心义'],1),ex:find(['example','context','例句','搭配','语境'],2),note:find(['note','备注','记忆点'],3),tags:find(['tags','tag','标签','source','来源'],4)}}return rows.slice(start).map(r=>({english:r[idx.en]||'',chinese:r[idx.zh]||'',example:r[idx.ex]||'',note:r[idx.note]||'',tags:r[idx.tags]||''}))}
+async function doImport(){try{let text=document.getElementById('importText').value,name='';const f=document.getElementById('wordFile').files[0];if(f){text=await f.text();name=f.name.toLowerCase()}const arr=parseImport(text,name);let n=0;arr.forEach(x=>{if(addWord(x))n++});save();closeModal('importModal');document.getElementById('importText').value='';document.getElementById('wordFile').value='';toast(`成功导入 ${n} 个新词`);renderAll()}catch(e){alert('导入失败：'+e.message)}}
+function download(name,content,type='text/plain;charset=utf-8'){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
+function csvCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function exportCsv(){const rows=[['english','chinese','example','note','source'],...allWords().map(w=>[w.english,w.chinese,w.example||'',w.note||'',w.source||''])];download('worddeck_wordbank.csv','\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\n'),'text/csv;charset=utf-8')}
+function exportBackup(){download('worddeck_backup_'+dateKey()+'.json',JSON.stringify({app:'WordDeck',exportedAt:new Date().toISOString(),state},null,2),'application/json')}
+async function importBackup(file){try{const x=JSON.parse(await file.text());const s=x.state||x;if(!s.wordState||!s.settings)throw new Error('不是有效的 WordDeck 备份');state={...clone(DEFAULTS),...s,settings:{...DEFAULTS.settings,...s.settings}};save();toast('备份已恢复');renderAll()}catch(e){alert('恢复失败：'+e.message)}}
+
+// events
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+document.getElementById('startMixed').onclick=()=>startSession('mixed');document.getElementById('startReview').onclick=()=>startSession('review');document.getElementById('startNew').onclick=()=>startSession('new');
+['dailyNewQuick','dailyReviewQuick','orderQuick'].forEach(id=>document.getElementById(id).onchange=updateQuick);
+document.getElementById('quitQuiz').onclick=()=>{if(confirm('退出本次练习？已完成的进度会保留。'))closeQuiz()};document.getElementById('nextBtn').onclick=nextCard;document.getElementById('dontKnowBtn').onclick=dontKnow;document.getElementById('speakBtn').onclick=()=>currentWord&&speak(currentWord.english);document.getElementById('starBtn').onclick=()=>{if(!currentWord)return;const st=ws(currentWord.id);st.starred=!st.starred;save();const b=document.getElementById('starBtn');b.classList.toggle('on',st.starred);b.textContent=st.starred?'★ 已收藏':'☆ 收藏'};
+document.getElementById('bankSearch').oninput=()=>{bankPage=120;renderBank()};document.getElementById('bankSource').onchange=()=>{bankPage=120;renderBank()};document.getElementById('bankStatus').onchange=()=>{bankPage=120;renderBank()};document.getElementById('loadMoreBank').onclick=()=>{bankPage+=150;renderBank()};
+document.getElementById('startMistakes').onclick=()=>{const ids=activeWords().filter(w=>ws(w.id).mistake).map(w=>w.id);startSession('mistake',shuffled(ids,dateKey()+'mistakes'))};
+document.getElementById('openImport').onclick=()=>openModal('importModal');document.getElementById('openAddWord').onclick=()=>openModal('addModal');document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));document.getElementById('doImport').onclick=doImport;
+document.getElementById('doAddWord').onclick=()=>{const ok=addWord({english:document.getElementById('addEnglish').value,chinese:document.getElementById('addChinese').value,example:document.getElementById('addExample').value,note:document.getElementById('addNote').value,tags:document.getElementById('addTags').value});if(!ok){alert('请填写英文和中文，且不要与现有词条重复。');return}save();['addEnglish','addChinese','addExample','addNote','addTags'].forEach(id=>document.getElementById(id).value='');closeModal('addModal');toast('已添加');renderAll()};
+document.querySelectorAll('.toggle').forEach(b=>b.onclick=()=>{const k=b.dataset.setting;state.settings[k]=!state.settings[k];save();renderSettings()});document.getElementById('intervalsInput').onchange=e=>{const a=e.target.value.split(',').map(x=>+x.trim()).filter(x=>Number.isFinite(x)&&x>0);if(a.length){state.settings.intervals=a;save()}else{e.target.value=state.settings.intervals.join(',')}};
+document.getElementById('nextRoundBtn').onclick=()=>{if(confirm(`立即进入第 ${state.currentRound+1} 轮？上一轮未完成的词也会被视为进入新轮次。`)){state.currentRound++;save();toast(labelRound());renderAll()}};document.getElementById('restartRoundBtn').onclick=()=>{if(confirm('重新开始当前轮？会把所有词的本轮完成标记清除，但不会清空 SRS 记忆阶段和历史正确率。')){activeWords().forEach(w=>{const s=ws(w.id);if(s.completedRounds>=state.currentRound)s.completedRounds=state.currentRound-1});save();renderAll();toast('当前轮已重新开始')}};
+document.getElementById('exportBackup').onclick=exportBackup;document.getElementById('importBackupBtn').onclick=()=>document.getElementById('backupInput').click();document.getElementById('backupInput').onchange=e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value=''};document.getElementById('exportCsv').onclick=exportCsv;document.getElementById('resetAll').onclick=()=>{if(confirm('确定清空全部学习进度、自定义词库与设置？此操作不可撤销。')){localStorage.removeItem(APP_KEY);state=clone(DEFAULTS);save();renderAll();toast('已重置')}};
+document.addEventListener('keydown',e=>{if(!document.getElementById('quizShell').classList.contains('open'))return;if(['1','2','3','4'].includes(e.key)&&!answered){const i=+e.key-1;document.querySelectorAll('.option')[i]?.click()}else if(e.key==='Enter'&&answered)nextCard();else if(e.key.toLowerCase()==='s'&&currentWord)speak(currentWord.english)});
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+renderAll();
+</script>
+</body>
+</html>
